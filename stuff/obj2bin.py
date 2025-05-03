@@ -1,18 +1,15 @@
 #!/usr/bin/env python
 
 import sys
-import os
 
 def f2q(n):
     return int(n * (1 << 16)).to_bytes(4, signed=True)
 
-def convert(filename):
+def convert(filename, outfile):
     verts = 0
     faces = 0
     vbytes = bytearray()
     fbytes = bytearray()
-
-    outfile = os.path.splitext(os.path.basename(filename))[0] + ".bin"
 
     with open(filename) as f:
         for line in f:
@@ -35,8 +32,8 @@ def convert(filename):
         of.write(fbytes)
 
 
-if len(sys.argv) != 2:
-    print("Usage: " + sys.argv[0] + " <obj file>")
+if len(sys.argv) != 3:
+    print("Usage: " + sys.argv[0] + " <obj file> <new bin file>")
     sys.exit()
 
-convert(sys.argv[1])
+convert(sys.argv[1], sys.argv[2])
