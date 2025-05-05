@@ -42,6 +42,8 @@ module DFFRAM512x32  (
        input   wire    [(A_WIDTH - 1): 0]   A0;
        
        reg [31:0] RAM[(NUM_WORDS-1): 0];
+
+       initial $readmemh("icosahedron.hex", RAM);
    
        always @(posedge CLK)
            if(EN0) begin
