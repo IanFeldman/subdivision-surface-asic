@@ -19,7 +19,7 @@ logic [31:0] do1;
 logic [8:0] a1;
 logic write;
 
-logic neighbor_start;
+logic neighbor_start, neighbor_busy;
 
 DFFRAM512x32 ram1 (
     .CLK(clk),
@@ -43,16 +43,17 @@ DFFRAM512x32_ZERO ram2 (
 neighbor neighbo(
     .clk(clk),
     .start(neighbor_start),
-    .RAM1_Do(do0),
-    .RAM2_Do(do1),
-    .RAM1_EN(en0),
-    .RAM2_EN(en1),
-    .RAM1_A(a0),
-    .RAM2_A(a1),
-    .RAM1_WE(we0),
-    .RAM2_WE(we1),
-    .RAM1_Di(di0),
-    .RAM2_Di(di1)
+    .RAM_OBJ_Do(do0),
+    .RAM_NBR_Do(do1),
+    .RAM_OBJ_EN(en0),
+    .RAM_NBR_EN(en1),
+    .RAM_OBJ_A(a0),
+    .RAM_NBR_A(a1),
+    .RAM_OBJ_WE(we0),
+    .RAM_NBR_WE(we1),
+    .RAM_OBJ_Di(di0),
+    .RAM_NBR_Di(di1),
+    .busy(neighbor_busy)
 );
 
 // Sample to drive clock
@@ -72,10 +73,12 @@ end
 initial begin
     // Test Goes Here
     clk = 0;
-
-    #20;
+    #10;
     neighbor_start = 1'b1;
-    #11000;
+    #10;
+    neighbor_start = 1'b0;
+    while (neighbor_busy) #10
+    #10;
     write = 1;
     #200;
 

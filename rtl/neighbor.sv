@@ -1,14 +1,15 @@
 `timescale 1ns/1ps
 
-/* RAM1 is obj input, RAM2 is neighbors output */
+/* RAM_OBJ is obj input, RAM_NBR is neighbors output */
 module neighbor #(parameter MAX_NEIGHBOR_COUNT=10)
 (
     input clk, start,
-    input [31:0] RAM1_Do, RAM2_Do,
-    output logic RAM1_EN, RAM2_EN,
-    output logic [8:0] RAM1_A, RAM2_A,
-    output logic [3:0] RAM1_WE, RAM2_WE,
-    output logic [31:0] RAM1_Di, RAM2_Di
+    input [31:0] RAM_OBJ_Do, RAM_NBR_Do,
+    output logic RAM_OBJ_EN, RAM_NBR_EN,
+    output logic [8:0] RAM_OBJ_A, RAM_NBR_A,
+    output logic [3:0] RAM_OBJ_WE, RAM_NBR_WE,
+    output logic [31:0] RAM_OBJ_Di, RAM_NBR_Di,
+    output logic busy
 );
 
 enum {IDLE, SETUP_VCOUNT, SETUP_FCOUNT, SETUP_READ_LOOP, READ_FACE, CHECK_VERT,
@@ -16,7 +17,8 @@ enum {IDLE, SETUP_VCOUNT, SETUP_FCOUNT, SETUP_READ_LOOP, READ_FACE, CHECK_VERT,
 enum {SETUP_NCOUNT, SETUP_LOOP, LOOP, CV_DONE} cv_state = SETUP_NCOUNT;
 enum {SETUP_NCOUNT_WRITE, SETUP_N_WRITE, IN_DONE} in_state = SETUP_NCOUNT_WRITE;
 
-/* debug state */
+/* debug state - simulation only */
+`ifndef SYNTHESIS
 logic [63:0] state_string, cv_state_string, in_state_string;
 always_comb begin
     case (state)
@@ -44,6 +46,7 @@ always_comb begin
         default:            in_state_string = "UNKNOWN ";
     endcase
 end
+`endif
 
 /* RAM address width 9 bits */
 logic [31:0] vertex_count, face_count, curr_face;
@@ -61,30 +64,33 @@ always_ff@(posedge clk) begin
     case (state)
         /* initialize memory for vertex count read */
         SETUP_VCOUNT: begin
+            busy = 1'b0;
             /* init ram 1 signals */
-            RAM1_Di = 32'b0;
-            RAM1_EN = 1'b1;
-            RAM1_WE = 4'b0;
-            RAM1_A = 9'b0;
+            RAM_OBJ_Di = 32'b0;
+            RAM_OBJ_EN = 1'b1;
+            RAM_OBJ_WE = 4'b0;
+            RAM_OBJ_A = 9'b0;
             /* init ram 2 signals */
-            RAM2_Di = 32'b0;
-            RAM2_EN = 1'b1;
-            RAM2_WE = 4'b0;
-            RAM2_A = 9'b0;
+            RAM_NBR_Di = 32'b0;
+            RAM_NBR_EN = 1'b1;
+            RAM_NBR_WE = 4'b0;
+            RAM_NBR_A = 9'b0;
             /* update state */
-            if (start == 1'b1)
+            if (start == 1'b1) begin
                 state = SETUP_FCOUNT;
+                busy = 1'b1;
+            end
         end
         /* read vertex count and set up face count read */
         SETUP_FCOUNT: begin
-            vertex_count = RAM1_Do;
-            RAM1_A = vertex_count[8:0] * 3 + 1;
+            vertex_count = RAM_OBJ_Do;
+            RAM_OBJ_A = vertex_count[8:0] * 3 + 1;
             state = SETUP_READ_LOOP;
         end
         /* read face count and begin iteration */
         SETUP_READ_LOOP: begin
-            face_count = RAM1_Do;
-            RAM1_A = RAM1_A + 1;
+            face_count = RAM_OBJ_Do;
+            RAM_OBJ_A = RAM_OBJ_A + 1;
             i = 0;
             curr_face = 32'b0;
             state = READ_FACE;
@@ -97,11 +103,11 @@ always_ff@(posedge clk) begin
             else begin
                 logic address_inc = 1'b1;
                 if (i == 2'b00)
-                    vertex_a = RAM1_Do;
+                    vertex_a = RAM_OBJ_Do;
                 else if (i == 2'b01)
-                    vertex_b = RAM1_Do;
+                    vertex_b = RAM_OBJ_Do;
                 else if (i == 2'b10) begin
-                    vertex_c = RAM1_Do;
+                    vertex_c = RAM_OBJ_Do;
                     curr_vertex = vertex_a;
                     test_vertex = vertex_b;
                     vertex_present = 1'b0;
@@ -109,7 +115,7 @@ always_ff@(posedge clk) begin
                     curr_face = curr_face + 1;
                     state = CHECK_VERT;
                 end
-                RAM1_A = RAM1_A + {8'b0, address_inc};
+                RAM_OBJ_A = RAM_OBJ_A + {8'b0, address_inc};
                 i = i + 1;
             end
         end
@@ -119,25 +125,25 @@ always_ff@(posedge clk) begin
             case (cv_state)
                 SETUP_NCOUNT: begin
                     neighbor_list_addr = (curr_vertex[8:0] - 1) * MAX_NEIGHBOR_COUNT; /* TODO: revisit bit widths */
-                    RAM2_A = neighbor_list_addr;
+                    RAM_NBR_A = neighbor_list_addr;
                     cv_state = SETUP_LOOP;
                 end
                 SETUP_LOOP: begin
                     /* read neighbor count */
-                    neighbor_count = RAM2_Do[3:0]; /* TODO revisit bit width */
+                    neighbor_count = RAM_NBR_Do[3:0]; /* TODO revisit bit width */
                     if (neighbor_count == 4'b0) begin
                         cv_state = CV_DONE;
                     end
                     else begin
                         neighbor_idx = 4'b0;
                         /* set address of first neighbor */
-                        RAM2_A = neighbor_list_addr + {5'b0, neighbor_idx} + 1;
+                        RAM_NBR_A = neighbor_list_addr + {5'b0, neighbor_idx} + 1;
                         cv_state = LOOP;
                     end
                 end
                 LOOP: begin
                     /* read in neighbor */
-                    neighbor = RAM2_Do;
+                    neighbor = RAM_NBR_Do;
                     /* check idx */
                     if (neighbor_idx == neighbor_count)
                         cv_state = CV_DONE;
@@ -149,7 +155,7 @@ always_ff@(posedge clk) begin
                     /* move on to next neighbor */
                     else begin
                         neighbor_idx = neighbor_idx + 1;
-                        RAM2_A = neighbor_list_addr + {5'b0, neighbor_idx} + 1;
+                        RAM_NBR_A = neighbor_list_addr + {5'b0, neighbor_idx} + 1;
                     end
                 end
                 /* update state */
@@ -204,28 +210,32 @@ always_ff@(posedge clk) begin
                     else begin
                         neighbor_count = neighbor_count + 1;
                         /* set ram signals */
-                        RAM2_A = neighbor_list_addr;
-                        RAM2_Di = {28'b0, neighbor_count};
-                        RAM2_WE = 4'b1111;
+                        RAM_NBR_A = neighbor_list_addr;
+                        RAM_NBR_Di = {28'b0, neighbor_count};
+                        RAM_NBR_WE = 4'b1111;
                         in_state = SETUP_N_WRITE;
                     end
                 end
                 SETUP_N_WRITE: begin
                     /* go to address of new neighbor */
-                    RAM2_A = neighbor_list_addr + {5'b0, neighbor_count};
-                    RAM2_Di = test_vertex;
+                    RAM_NBR_A = neighbor_list_addr + {5'b0, neighbor_count};
+                    RAM_NBR_Di = test_vertex;
                     in_state = IN_DONE;
                 end
                 IN_DONE: begin
-                    RAM1_EN = 1'b1;
-                    RAM2_EN = 1'b1;
-                    RAM2_WE = 4'b0;
+                    RAM_OBJ_EN = 1'b1;
+                    RAM_NBR_EN = 1'b1;
+                    RAM_NBR_WE = 4'b0;
                     in_state = SETUP_NCOUNT_WRITE;
                     state = UPDATE_CHECK;
                 end
                 default: begin
                 end
             endcase
+        end
+        DONE: begin
+            busy = 1'b0;
+            state = SETUP_VCOUNT;
         end
         default begin
         end
