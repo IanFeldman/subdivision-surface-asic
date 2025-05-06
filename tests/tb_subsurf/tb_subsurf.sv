@@ -18,6 +18,8 @@ logic [31:0] di1;
 logic [31:0] do1;
 logic [8:0] a1;
 
+logic neighbor_start;
+
 DFFRAM512x32 ram1 (
     .CLK(clk),
     .WE0(we0),
@@ -27,7 +29,7 @@ DFFRAM512x32 ram1 (
     .A0(a0)
 );
 
-DFFRAM512x32 ram2 (
+DFFRAM512x32_ZERO ram2 (
     .CLK(clk),
     .WE0(we1),
     .EN0(en1),
@@ -38,6 +40,7 @@ DFFRAM512x32 ram2 (
 
 neighbor neighbo(
     .clk(clk),
+    .start(neighbor_start),
     .RAM1_Do(do0),
     .RAM2_Do(do1),
     .RAM1_EN(en0),
@@ -68,6 +71,8 @@ initial begin
     // Test Goes Here
     clk = 0;
 
+    #20;
+    neighbor_start = 1'b1;
     #2500;
 
     // Make sure to call finish so test exits
