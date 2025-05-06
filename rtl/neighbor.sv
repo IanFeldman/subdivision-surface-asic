@@ -4,6 +4,7 @@
 module neighbor #(parameter MAX_NEIGHBOR_COUNT=10)
 (
     input clk, start,
+    input [31:0] vertex_count, face_count,
     input [31:0] RAM_OBJ_Do, RAM_NBR_Do,
     output logic RAM_OBJ_EN, RAM_NBR_EN,
     output logic [8:0] RAM_OBJ_A, RAM_NBR_A,
@@ -12,8 +13,7 @@ module neighbor #(parameter MAX_NEIGHBOR_COUNT=10)
     output logic busy
 );
 
-enum {SETUP_VCOUNT, SETUP_FCOUNT, SETUP_READ_LOOP, READ_FACE, CHECK_VERT,
-    UPDATE_CHECK, INSERT_NEIGHBOR, DONE} state = SETUP_VCOUNT;
+enum {IDLE, READ_FACE, CHECK_VERT, UPDATE_CHECK, INSERT_NEIGHBOR, DONE} state = IDLE;
 enum {SETUP_NCOUNT, SETUP_LOOP, LOOP, CV_DONE} cv_state = SETUP_NCOUNT;
 enum {SETUP_NCOUNT_WRITE, SETUP_N_WRITE, IN_DONE} in_state = SETUP_NCOUNT_WRITE;
 
@@ -22,13 +22,11 @@ enum {SETUP_NCOUNT_WRITE, SETUP_N_WRITE, IN_DONE} in_state = SETUP_NCOUNT_WRITE;
 logic [63:0] state_string, cv_state_string, in_state_string;
 always_comb begin
     case (state)
-        SETUP_VCOUNT:    state_string = "SET_VC  ";
-        SETUP_FCOUNT:    state_string = "SET_FC  ";
-        SETUP_READ_LOOP: state_string = "SET_LOOP";
-        READ_FACE:       state_string = "READ_FC ";
+        IDLE:            state_string = "IDLE    ";
+        READ_FACE:       state_string = "READ_FCE";
         CHECK_VERT:      state_string = "CHK_VERT";
-        UPDATE_CHECK:    state_string = "UPD_CHK ";
-        INSERT_NEIGHBOR: state_string = "INS_NEIG";
+        UPDATE_CHECK:    state_string = "UPDT_CHK";
+        INSERT_NEIGHBOR: state_string = "INS_NBR ";
         DONE:            state_string = "DONE    ";
         default:         state_string = "UNKNOWN ";
     endcase
@@ -41,7 +39,7 @@ always_comb begin
     endcase
     case (in_state)
         SETUP_NCOUNT_WRITE: in_state_string = "SET_NCNT";
-        SETUP_N_WRITE:      in_state_string = "SET_N_W ";
+        SETUP_N_WRITE:      in_state_string = "SET_N_WR";
         DONE:               in_state_string = "DONE    ";
         default:            in_state_string = "UNKNOWN ";
     endcase
@@ -49,8 +47,7 @@ end
 `endif
 
 /* RAM address width 9 bits */
-logic [31:0] vertex_count, face_count, curr_face;
-logic [31:0] vertex_a, vertex_b, vertex_c;
+logic [31:0] curr_face, vertex_a, vertex_b, vertex_c;
 logic [1:0] i;
 
 /* for checking if neighbor is present */
@@ -63,8 +60,11 @@ logic [8:0] neighbor_list_addr;
 always_ff@(posedge clk) begin
     case (state)
         /* initialize memory for vertex count read */
-        SETUP_VCOUNT: begin
+        IDLE: begin
+            /* init various signals */
             busy = 1'b0;
+            i = 2'b0;
+            curr_face = 32'b0;
             /* init ram 1 signals */
             RAM_OBJ_Di = 32'b0;
             RAM_OBJ_EN = 1'b1;
@@ -77,23 +77,11 @@ always_ff@(posedge clk) begin
             RAM_NBR_A = 9'b0;
             /* update state */
             if (start == 1'b1) begin
-                state = SETUP_FCOUNT;
                 busy = 1'b1;
+                /* set address to first face */
+                RAM_OBJ_A = vertex_count[8:0] * 3 + 2;
+                state = READ_FACE;
             end
-        end
-        /* read vertex count and set up face count read */
-        SETUP_FCOUNT: begin
-            vertex_count = RAM_OBJ_Do;
-            RAM_OBJ_A = vertex_count[8:0] * 3 + 1;
-            state = SETUP_READ_LOOP;
-        end
-        /* read face count and begin iteration */
-        SETUP_READ_LOOP: begin
-            face_count = RAM_OBJ_Do;
-            RAM_OBJ_A = RAM_OBJ_A + 1;
-            i = 0;
-            curr_face = 32'b0;
-            state = READ_FACE;
         end
         /* get face vertices a, b, c */
         READ_FACE: begin
@@ -234,7 +222,7 @@ always_ff@(posedge clk) begin
         end
         DONE: begin
             busy = 1'b0;
-            state = SETUP_VCOUNT;
+            state = IDLE;
         end
         default begin
         end

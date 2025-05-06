@@ -19,6 +19,7 @@ logic [31:0] do1;
 logic [8:0] a1;
 logic write;
 
+logic [31:0] vertex_count, face_count;
 logic neighbor_start, neighbor_busy;
 
 DFFRAM512x32 ram1 (
@@ -43,6 +44,8 @@ DFFRAM512x32_ZERO ram2 (
 neighbor neighbo(
     .clk(clk),
     .start(neighbor_start),
+    .vertex_count(vertex_count),
+    .face_count(face_count),
     .RAM_OBJ_Do(do0),
     .RAM_NBR_Do(do1),
     .RAM_OBJ_EN(en0),
@@ -71,8 +74,9 @@ initial begin
 end
 
 initial begin
-    // Test Goes Here
     clk = 0;
+    vertex_count = 12;
+    face_count = 20;
     #10;
     neighbor_start = 1'b1;
     #10;
