@@ -12,7 +12,7 @@ module neighbor #(parameter MAX_NEIGHBOR_COUNT=10)
     output logic busy
 );
 
-enum {IDLE, SETUP_VCOUNT, SETUP_FCOUNT, SETUP_READ_LOOP, READ_FACE, CHECK_VERT,
+enum {SETUP_VCOUNT, SETUP_FCOUNT, SETUP_READ_LOOP, READ_FACE, CHECK_VERT,
     UPDATE_CHECK, INSERT_NEIGHBOR, DONE} state = SETUP_VCOUNT;
 enum {SETUP_NCOUNT, SETUP_LOOP, LOOP, CV_DONE} cv_state = SETUP_NCOUNT;
 enum {SETUP_NCOUNT_WRITE, SETUP_N_WRITE, IN_DONE} in_state = SETUP_NCOUNT_WRITE;
@@ -101,7 +101,6 @@ always_ff@(posedge clk) begin
             if (curr_face == face_count)
                 state = DONE;
             else begin
-                logic address_inc = 1'b1;
                 if (i == 2'b00)
                     vertex_a = RAM_OBJ_Do;
                 else if (i == 2'b01)
@@ -115,7 +114,7 @@ always_ff@(posedge clk) begin
                     curr_face = curr_face + 1;
                     state = CHECK_VERT;
                 end
-                RAM_OBJ_A = RAM_OBJ_A + {8'b0, address_inc};
+                RAM_OBJ_A = RAM_OBJ_A + 1;
                 i = i + 1;
             end
         end
