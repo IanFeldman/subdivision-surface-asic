@@ -17,6 +17,7 @@ logic en1;
 logic [31:0] di1;
 logic [31:0] do1;
 logic [8:0] a1;
+logic write;
 
 logic neighbor_start;
 
@@ -35,7 +36,8 @@ DFFRAM512x32_ZERO ram2 (
     .EN0(en1),
     .Di0(di1),
     .Do0(do1),
-    .A0(a1)
+    .A0(a1),
+    .write(write)
 );
 
 neighbor neighbo(
@@ -73,7 +75,9 @@ initial begin
 
     #20;
     neighbor_start = 1'b1;
-    #2500;
+    #11000;
+    write = 1;
+    #200;
 
     // Make sure to call finish so test exits
     $finish();
