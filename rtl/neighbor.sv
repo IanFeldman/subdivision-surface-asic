@@ -57,27 +57,30 @@ logic [3:0] neighbor_count, neighbor_idx; /* TODO: Match size to MAX_NEIGHBOR_CO
 logic [8:0] neighbor_list_addr;
 
 /* state machine */
-always_ff@(posedge clk) begin
+always_ff@(negedge clk) begin
     case (state)
         /* initialize memory for vertex count read */
         IDLE: begin
-            /* init various signals */
-            busy = 1'b0;
-            i = 2'b0;
-            curr_face = 32'b0;
-            /* init ram 1 signals */
-            RAM_OBJ_Di = 32'b0;
-            RAM_OBJ_EN = 1'b1;
-            RAM_OBJ_WE = 4'b0;
-            RAM_OBJ_A = 9'b0;
-            /* init ram 2 signals */
-            RAM_NBR_Di = 32'b0;
-            RAM_NBR_EN = 1'b1;
-            RAM_NBR_WE = 4'b0;
-            RAM_NBR_A = 9'b0;
+            busy <= 1'b0;
             /* update state */
             if (start == 1'b1) begin
-                busy = 1'b1;
+                /* init ram 1 signals */
+                RAM_OBJ_Di = 32'b0;
+                RAM_OBJ_EN = 1'b1;
+                RAM_OBJ_WE = 4'b0;
+                RAM_OBJ_A = 9'b0;
+                /* init ram 2 signals */
+                RAM_NBR_Di = 32'b0;
+                RAM_NBR_EN = 1'b1;
+                RAM_NBR_WE = 4'b0;
+                RAM_NBR_A = 9'b0;
+                /* init various signals */
+                busy <= 1'b1;
+                i = 2'b0;
+                curr_face = 32'b0;
+                vertex_a <= 32'b0;
+                vertex_b <= 32'b0;
+                vertex_c <= 32'b0;
                 /* set address to first face */
                 RAM_OBJ_A = vertex_count[8:0] * 3 + 2;
                 state = READ_FACE;
@@ -90,11 +93,11 @@ always_ff@(posedge clk) begin
                 state = DONE;
             else begin
                 if (i == 2'b00)
-                    vertex_a = RAM_OBJ_Do;
+                    vertex_a <= RAM_OBJ_Do;
                 else if (i == 2'b01)
-                    vertex_b = RAM_OBJ_Do;
+                    vertex_b <= RAM_OBJ_Do;
                 else if (i == 2'b10) begin
-                    vertex_c = RAM_OBJ_Do;
+                    vertex_c <= RAM_OBJ_Do;
                     curr_vertex = vertex_a;
                     test_vertex = vertex_b;
                     vertex_present = 1'b0;
@@ -221,7 +224,7 @@ always_ff@(posedge clk) begin
             endcase
         end
         DONE: begin
-            busy = 1'b0;
+            busy <= 1'b0;
             state = IDLE;
         end
         default begin

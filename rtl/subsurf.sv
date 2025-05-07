@@ -128,6 +128,8 @@ always_ff@(posedge clk) begin
                 neighbor_start <= 1'b1;
                 i <= i + 1;
             end
+            if (i == 2'b01)
+                i <= i + 1;
             else if (i == 2'b10) begin
                 neighbor_start <= 1'b0;
                 i <= i + 1;
