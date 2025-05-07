@@ -1,4 +1,5 @@
 `timescale 1ns/1ps
+`define ADDR_WIDTH 9
 
 module averager #(parameter MAX_NEIGHBOR_COUNT=10)
 (
@@ -6,13 +7,11 @@ module averager #(parameter MAX_NEIGHBOR_COUNT=10)
     input [31:0] vertex_count, face_count,
     input [31:0] RAM_OBJ_Do, RAM_NBR_Do, RAM_RES_Do,
     output logic RAM_OBJ_EN, RAM_NBR_EN, RAM_RES_EN,
-    output logic [8:0] RAM_OBJ_A, RAM_NBR_A, RAM_RES_A,
+    output logic [(`ADDR_WIDTH - 1):0] RAM_OBJ_A, RAM_NBR_A, RAM_RES_A,
     output logic [3:0] RAM_OBJ_WE, RAM_NBR_WE, RAM_RES_WE,
     output logic [31:0] RAM_OBJ_Di, RAM_NBR_Di, RAM_RES_Di,
     output logic busy
 );
-
-`define ADDR_WIDTH 9
 
 /* assume that RAM_OBJ = RAM_RES at the start */
 
@@ -38,46 +37,46 @@ end
 `endif
 
 /* 
- * Initialize all signals
  * Wait for start to go high
+ * Initialize all signals
  * 
  * For each vert, v, in neighbor ram
  *    Read in neighbor count, c
  *    For each neighbor, n, in neighbors
- *       Add n.x / B into x_sum, n.y / B into y_sum, n.z / B into z_sum
- *    Add v.x(1 - cB) into x_sum, v.y(1 - cB) into y_sum, v.z(1 - cB) into z_sum
- *    Save x_sum, y_sum, z_sum into result ram
+ *       Add n.x / B into sum_x, n.y / B into sum_y, n.z / B into sum_z
+ *    Add v.x(1 - cB) into sum_x, v.y(1 - cB) into sum_y, v.z(1 - cB) into sum_z
+ *    Save sum_x, sum_y, sum_z into result ram
  */
 
-always_ff@(posedge clk) begin
+always_ff@(negedge clk) begin
     case (state)
         IDLE: begin
-            /* init various signals */
             busy <= 1'b0;
-            i = 2'b0;
-            curr_vertex = 32'b0; /* idx of curr vert, 0 -> (vertex_count - 1) */
-            neighbor_count = 32'b0;
-            neighbors_read = 32'b0;
-            sum_x <= 32'b0;
-            sum_y <= 32'b0;
-            sum_z <= 32'b0;
-            /* init object ram signals */
-            RAM_OBJ_Di = 32'b0;
-            RAM_OBJ_EN = 1'b1;
-            RAM_OBJ_WE = 4'b0;
-            RAM_OBJ_A = 9'b0;
-            /* init neighbor ram signals */
-            RAM_NBR_Di = 32'b0;
-            RAM_NBR_EN = 1'b1;
-            RAM_NBR_WE = 4'b0;
-            RAM_NBR_A = 9'b0;
-            /* init result ram signals */
-            RAM_RES_Di = 32'b0;
-            RAM_RES_EN = 1'b1;
-            RAM_RES_WE = 4'b0;
-            RAM_RES_A = 9'b0;
             /* update state */
             if (start == 1'b1) begin
+                /* init various signals */
+                i = 2'b0;
+                curr_vertex = 32'b0; /* idx of curr vert, 0 -> (vertex_count - 1) */
+                neighbor_count = 32'b0;
+                neighbors_read = 32'b0;
+                sum_x <= 32'b0;
+                sum_y <= 32'b0;
+                sum_z <= 32'b0;
+                /* init object ram signals */
+                RAM_OBJ_Di = 32'b0;
+                RAM_OBJ_EN = 1'b1;
+                RAM_OBJ_WE = 4'b0;
+                RAM_OBJ_A = 9'b0;
+                /* init neighbor ram signals */
+                RAM_NBR_Di = 32'b0;
+                RAM_NBR_EN = 1'b1;
+                RAM_NBR_WE = 4'b0;
+                RAM_NBR_A = 9'b0;
+                /* init result ram signals */
+                RAM_RES_Di = 32'b0;
+                RAM_RES_EN = 1'b1;
+                RAM_RES_WE = 4'b0;
+                RAM_RES_A = 9'b0;
                 busy <= 1'b1;
                 state <= GET_NEIGHBOR;
             end

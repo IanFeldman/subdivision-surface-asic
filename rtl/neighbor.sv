@@ -1,4 +1,5 @@
 `timescale 1ns/1ps
+`define ADDR_WIDTH 9
 
 /* RAM_OBJ is obj input, RAM_NBR is neighbors output */
 module neighbor #(parameter MAX_NEIGHBOR_COUNT=10)
@@ -7,7 +8,7 @@ module neighbor #(parameter MAX_NEIGHBOR_COUNT=10)
     input [31:0] vertex_count, face_count,
     input [31:0] RAM_OBJ_Do, RAM_NBR_Do,
     output logic RAM_OBJ_EN, RAM_NBR_EN,
-    output logic [8:0] RAM_OBJ_A, RAM_NBR_A,
+    output logic [(`ADDR_WIDTH - 1):0] RAM_OBJ_A, RAM_NBR_A,
     output logic [3:0] RAM_OBJ_WE, RAM_NBR_WE,
     output logic [31:0] RAM_OBJ_Di, RAM_NBR_Di,
     output logic busy
@@ -54,7 +55,7 @@ logic [1:0] i;
 logic [31:0] curr_vertex, test_vertex, neighbor;
 logic vertex_present;
 logic [3:0] neighbor_count, neighbor_idx; /* TODO: Match size to MAX_NEIGHBOR_COUNT */
-logic [8:0] neighbor_list_addr;
+logic [(`ADDR_WIDTH - 1):0] neighbor_list_addr;
 
 /* state machine */
 always_ff@(negedge clk) begin
@@ -82,7 +83,7 @@ always_ff@(negedge clk) begin
                 vertex_b <= 32'b0;
                 vertex_c <= 32'b0;
                 /* set address to first face */
-                RAM_OBJ_A = vertex_count[8:0] * 3 + 2;
+                RAM_OBJ_A = vertex_count[(`ADDR_WIDTH - 1):0] * 3 + 2;
                 state = READ_FACE;
             end
         end
@@ -114,7 +115,7 @@ always_ff@(negedge clk) begin
             /* vertex indexed at 1 */
             case (cv_state)
                 SETUP_NCOUNT: begin
-                    neighbor_list_addr = (curr_vertex[8:0] - 1) * MAX_NEIGHBOR_COUNT; /* TODO: revisit bit widths */
+                    neighbor_list_addr = (curr_vertex[(`ADDR_WIDTH - 1):0] - 1) * MAX_NEIGHBOR_COUNT; /* TODO: revisit bit widths */
                     RAM_NBR_A = neighbor_list_addr;
                     cv_state = SETUP_LOOP;
                 end
