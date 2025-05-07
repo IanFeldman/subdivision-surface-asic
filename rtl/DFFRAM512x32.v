@@ -28,7 +28,8 @@ module DFFRAM512x32  (
         EN0,
         Di0,
         Do0,
-        A0
+        A0,
+        write
 );
        localparam A_WIDTH = 9;
        localparam NUM_WORDS = 2**A_WIDTH;
@@ -40,12 +41,14 @@ module DFFRAM512x32  (
        input   wire    [31:0]               Di0;
        output  reg     [31:0]               Do0;
        input   wire    [(A_WIDTH - 1): 0]   A0;
+       input   wire                         write;
        
        reg [31:0] RAM[(NUM_WORDS-1): 0];
 
        initial $readmemh("icosahedron.hex", RAM);
    
-       always @(posedge CLK)
+       always @(posedge CLK) begin
+           if (write == 1'b1) begin $writememh("hi", RAM); end
            if(EN0) begin
                Do0 <= RAM[A0];
                if(WE0[0]) RAM[A0][ 7: 0] <= Di0[7:0];
@@ -55,4 +58,5 @@ module DFFRAM512x32  (
            end
            else
                Do0 <= 32'b0;
+       end
     endmodule

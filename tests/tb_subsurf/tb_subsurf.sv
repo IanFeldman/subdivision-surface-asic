@@ -11,7 +11,7 @@ logic en0, en1, en2;
 logic [31:0] di0, di1, di2;
 logic [31:0] do0, do1, do2;
 logic [8:0] a0, a1, a2;
-logic write;
+logic write0, write1, write2;
 
 logic start, busy;
 
@@ -21,7 +21,8 @@ DFFRAM512x32 ram0 (
     .EN0(en0),
     .Di0(di0),
     .Do0(do0),
-    .A0(a0)
+    .A0(a0),
+    .write(write0)
 );
 
 DFFRAM512x32_ZERO ram1 (
@@ -31,7 +32,7 @@ DFFRAM512x32_ZERO ram1 (
     .Di0(di1),
     .Do0(do1),
     .A0(a1),
-    .write(write)
+    .write(write1)
 );
 
 DFFRAM512x32 ram2 (
@@ -40,7 +41,8 @@ DFFRAM512x32 ram2 (
     .EN0(en2),
     .Di0(di2),
     .Do0(do2),
-    .A0(a2)
+    .A0(a2),
+    .write(write2)
 );
 
 subsurf top (
@@ -85,6 +87,9 @@ initial begin
     #10;
     start = 1'b0;
     #50000;
+    write2 = 1'b1;
+    #10;
+    write2 = 1'b0;
     $finish();
 end
 
