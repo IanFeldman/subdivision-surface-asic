@@ -82,6 +82,9 @@ end
 
 initial begin
     clk = 0;
+    write0 = 1'b0;
+    write1 = 1'b0;
+    write2 = 1'b0;
     #10;
     start = 1'b1;
     #10;

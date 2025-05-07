@@ -1,5 +1,6 @@
 `timescale 1ns/1ps
 `define ADDR_WIDTH 9
+`define Q_ONE 32'h00010000
 
 module averager #(parameter MAX_NEIGHBOR_COUNT=10)
 (
@@ -16,7 +17,9 @@ module averager #(parameter MAX_NEIGHBOR_COUNT=10)
 /* assume that RAM_OBJ = RAM_RES at the start */
 
 logic [31:0] curr_vertex, neighbor_count, neighbors_read, sum_x, sum_y, sum_z;
+logic [31:0] neighbor_count_q;
 logic [1:0] i;
+assign neighbor_count_q = neighbor_count << 16;
 
 enum {IDLE, GET_NEIGHBOR, READ_NEIGHBOR_VERTEX,
       READ_CURR_VERTEX, WRITE_CURR_VERTEX, DONE} state = IDLE;
@@ -111,23 +114,24 @@ always_ff@(negedge clk) begin
         READ_NEIGHBOR_VERTEX: begin
             /* read in x */
             if (i == 2'b00) begin
-                sum_x <= sum_x + (RAM_OBJ_Do >> 4);
+                sum_x <= sum_x + (RAM_OBJ_Do >>> 4);
                 RAM_OBJ_A = RAM_OBJ_A + 1;
             end
             /* read in y */
             else if (i == 2'b01) begin
-                sum_y <= sum_y + (RAM_OBJ_Do >> 4);
+                sum_y <= sum_y + (RAM_OBJ_Do >>> 4);
                 RAM_OBJ_A = RAM_OBJ_A + 1;
             end
             /* read in z */
             else if (i == 2'b10) begin
-                sum_z <= sum_z + (RAM_OBJ_Do >> 4);
+                sum_z <= sum_z + (RAM_OBJ_Do >>> 4);
                 i = 2'b11;
-                /* translate current index to ram address */
-                RAM_OBJ_A = curr_vertex[(`ADDR_WIDTH - 1):0] * 3 + 1;
                 /* only read curr vertex at the end */
-                if (neighbors_read == neighbor_count)
+                if (neighbors_read == neighbor_count) begin
+                    /* translate current index to ram address */
+                    RAM_OBJ_A = curr_vertex[(`ADDR_WIDTH - 1):0] * 3 + 1;
                     state <= READ_CURR_VERTEX;
+                end
                 else
                     state <= GET_NEIGHBOR;
             end
@@ -136,13 +140,13 @@ always_ff@(negedge clk) begin
         READ_CURR_VERTEX: begin
             /* read in x */
             if (i == 2'b00)
-                sum_x <= sum_x + (RAM_OBJ_Do * (1 - (neighbor_count >> 4)));
+                sum_x <= sum_x + (RAM_OBJ_Do * (`Q_ONE - (neighbor_count_q >>> 4)));
             /* read in y */
             else if (i == 2'b01)
-                sum_y <= sum_y + (RAM_OBJ_Do * (1 - (neighbor_count >> 4)));
+                sum_y <= sum_y + (RAM_OBJ_Do * (`Q_ONE - (neighbor_count_q >>> 4)));
             /* read in z */
             else if (i == 2'b10) begin
-                sum_z <= sum_z + (RAM_OBJ_Do * (1 - (neighbor_count >> 4)));
+                sum_z <= sum_z + (RAM_OBJ_Do * (`Q_ONE - (neighbor_count_q >>> 4)));
                 i = 2'b11;
                 state <= WRITE_CURR_VERTEX;
             end
