@@ -103,6 +103,10 @@ always_ff@(negedge clk) begin
                 neighbor_count = RAM_NBR_Do;
                 RAM_NBR_A = RAM_NBR_A + 1;
                 neighbors_read = neighbors_read + 1;
+                /* reset sums */
+                sum_x <= 32'b0;
+                sum_y <= 32'b0;
+                sum_z <= 32'b0;
             end
             else begin
                 /* translate neighbor index to ram address */
