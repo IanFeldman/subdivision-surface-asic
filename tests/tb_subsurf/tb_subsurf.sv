@@ -6,21 +6,14 @@ module tb_subsurf;
 logic clk;
 reg [31:0] mem[((2**9)-1): 0];
 
-logic [3:0] we0;
-logic en0;
-logic [31:0] di0;
-logic [31:0] do0;
-logic [8:0] a0;
-
-logic [3:0] we1;
-logic en1;
-logic [31:0] di1;
-logic [31:0] do1;
-logic [8:0] a1;
+logic [3:0] we0, we1, we2;
+logic en0, en1, en2;
+logic [31:0] di0, di1, di2;
+logic [31:0] do0, do1, do2;
+logic [8:0] a0, a1, a2;
 logic write;
 
-logic [31:0] vertex_count, face_count;
-logic neighbor_start, neighbor_busy;
+logic start, busy;
 
 DFFRAM512x32 ram1 (
     .CLK(clk),
@@ -41,22 +34,25 @@ DFFRAM512x32_ZERO ram2 (
     .write(write)
 );
 
-neighbor neighbo(
+subsurf top (
     .clk(clk),
-    .start(neighbor_start),
-    .vertex_count(vertex_count),
-    .face_count(face_count),
-    .RAM_OBJ_Do(do0),
-    .RAM_NBR_Do(do1),
-    .RAM_OBJ_EN(en0),
-    .RAM_NBR_EN(en1),
-    .RAM_OBJ_A(a0),
-    .RAM_NBR_A(a1),
-    .RAM_OBJ_WE(we0),
-    .RAM_NBR_WE(we1),
-    .RAM_OBJ_Di(di0),
-    .RAM_NBR_Di(di1),
-    .busy(neighbor_busy)
+    .start(start),
+    .do0(do0),
+    .do1(do1),
+    .do2(do2),
+    .en0(en0),
+    .en1(en1),
+    .en2(en2),
+    .a0(a0),
+    .a1(a1),
+    .a2(a2),
+    .we0(we0),
+    .we1(we1),
+    .we2(we2),
+    .di0(di0),
+    .di1(di1),
+    .di2(di2),
+    .busy(busy)
 );
 
 // Sample to drive clock
@@ -75,18 +71,11 @@ end
 
 initial begin
     clk = 0;
-    vertex_count = 12;
-    face_count = 20;
     #10;
-    neighbor_start = 1'b1;
+    start = 1'b1;
     #10;
-    neighbor_start = 1'b0;
-    while (neighbor_busy) #10
-    #10;
-    write = 1;
-    #200;
-
-    // Make sure to call finish so test exits
+    start = 1'b0;
+    #50000;
     $finish();
 end
 
