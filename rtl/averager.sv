@@ -18,9 +18,13 @@ module averager #(parameter MAX_NEIGHBOR_COUNT=10)
 
 logic [31:0] curr_vertex, neighbor_count, neighbors_read;
 logic signed [31:0] sum_x, sum_y, sum_z;
-logic signed [31:0] neighbor_count_q;
+logic signed [31:0] neighbor_count_q, neighbor_vertex_weight, curr_vertex_weight;
 logic [1:0] i;
+
+/* continuous assignments */
 assign neighbor_count_q = neighbor_count << 16;
+assign neighbor_vertex_weight = (RAM_OBJ_Do >>> 4);
+assign curr_vertex_weight = $signed(RAM_OBJ_Do * (`Q_ONE - (neighbor_count_q >>> 4))) >>> 16;
 
 enum {IDLE, GET_NEIGHBOR, READ_NEIGHBOR_VERTEX,
       READ_CURR_VERTEX, WRITE_CURR_VERTEX, DONE} state = IDLE;
@@ -119,20 +123,20 @@ always_ff@(negedge clk) begin
         READ_NEIGHBOR_VERTEX: begin
             /* read in x */
             if (i == 2'b00) begin
-                sum_x <= sum_x + (RAM_OBJ_Do >>> 4);
+                sum_x <= sum_x + neighbor_vertex_weight;
                 RAM_OBJ_A = RAM_OBJ_A + 1;
             end
             /* read in y */
             else if (i == 2'b01) begin
-                sum_y <= sum_y + (RAM_OBJ_Do >>> 4);
+                sum_y <= sum_y + neighbor_vertex_weight;
                 RAM_OBJ_A = RAM_OBJ_A + 1;
             end
             /* read in z */
             else if (i == 2'b10) begin
-                sum_z <= sum_z + (RAM_OBJ_Do >>> 4);
+                sum_z <= sum_z + neighbor_vertex_weight;
                 i = 2'b11;
                 /* only read curr vertex at the end */
-                if (neighbors_read == neighbor_count) begin
+                if (neighbors_read > neighbor_count) begin
                     /* translate current index to ram address */
                     RAM_OBJ_A = curr_vertex[(`ADDR_WIDTH - 1):0] * 3 + 1;
                     state <= READ_CURR_VERTEX;
@@ -145,13 +149,13 @@ always_ff@(negedge clk) begin
         READ_CURR_VERTEX: begin
             /* read in x */
             if (i == 2'b00)
-                sum_x <= sum_x + ((RAM_OBJ_Do * (`Q_ONE - (neighbor_count_q >>> 4))) >>> 16);
+                sum_x <= sum_x + curr_vertex_weight;
             /* read in y */
             else if (i == 2'b01)
-                sum_y <= sum_y + ((RAM_OBJ_Do * (`Q_ONE - (neighbor_count_q >>> 4))) >>> 16);
+                sum_y <= sum_y + curr_vertex_weight;
             /* read in z */
             else if (i == 2'b10) begin
-                sum_z <= sum_z + ((RAM_OBJ_Do * (`Q_ONE - (neighbor_count_q >>> 4))) >>> 16);
+                sum_z <= sum_z + curr_vertex_weight;
                 i = 2'b11;
                 state <= WRITE_CURR_VERTEX;
             end
