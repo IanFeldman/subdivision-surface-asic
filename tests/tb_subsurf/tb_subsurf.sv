@@ -15,7 +15,7 @@ logic write;
 
 logic start, busy;
 
-DFFRAM512x32 ram1 (
+DFFRAM512x32 ram0 (
     .CLK(clk),
     .WE0(we0),
     .EN0(en0),
@@ -24,7 +24,7 @@ DFFRAM512x32 ram1 (
     .A0(a0)
 );
 
-DFFRAM512x32_ZERO ram2 (
+DFFRAM512x32_ZERO ram1 (
     .CLK(clk),
     .WE0(we1),
     .EN0(en1),
@@ -32,6 +32,15 @@ DFFRAM512x32_ZERO ram2 (
     .Do0(do1),
     .A0(a1),
     .write(write)
+);
+
+DFFRAM512x32 ram2 (
+    .CLK(clk),
+    .WE0(we2),
+    .EN0(en2),
+    .Di0(di2),
+    .Do0(do2),
+    .A0(a2)
 );
 
 subsurf top (

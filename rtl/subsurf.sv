@@ -30,7 +30,21 @@ logic [31:0] di0_a, di1_a, di2_a;
 
 /* control signals */
 logic [1:0] i;
-enum {IDLE, NEIGHBOR, AVERAGER} in_use = IDLE;
+enum {NONE, NEIGHBOR, AVERAGER} in_use = NONE;
+
+/* debug state - simulation only */
+`ifndef SYNTHESIS
+logic [63:0] state_string;
+always_comb begin
+    case (in_use)
+        NONE:       state_string = "NONE    ";
+        NEIGHBOR:   state_string = "NEIGHBOR";
+        AVERAGER:   state_string = "AVERAGER";
+        default:    state_string = "UNKNOWN ";
+    endcase
+end
+`endif
+
 
 neighbor nbr(
     .clk(clk),
@@ -116,7 +130,7 @@ end
 
 always_ff@(posedge clk) begin
     case (in_use)
-        IDLE: begin
+        NONE: begin
             if (start == 1'b1) begin
                 i <= 2'b00;
                 busy <= 1'b1;
@@ -135,11 +149,27 @@ always_ff@(posedge clk) begin
                 i <= i + 1;
             end
             else if (i == 2'b11) begin
-                if (neighbor_busy == 1'b0)
+                if (neighbor_busy == 1'b0) begin
+                    i <= 2'b00;
                     in_use <= AVERAGER;
+                end
             end
         end
         AVERAGER: begin
+            if (i == 2'b00) begin
+                averager_start <= 1'b1;
+                i <= i + 1;
+            end
+            if (i == 2'b01)
+                i <= i + 1;
+            else if (i == 2'b10) begin
+                averager_start <= 1'b0;
+                i <= i + 1;
+            end
+            else if (i == 2'b11) begin
+                if (averager_busy == 1'b0)
+                    in_use <= NONE;
+            end
         end
     endcase
 end

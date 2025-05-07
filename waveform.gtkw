@@ -1,15 +1,15 @@
 [*]
 [*] GTKWave Analyzer v3.4.0 (w)1999-2022 BSI
-[*] Wed May  7 06:22:48 2025
+[*] Wed May  7 06:40:24 2025
 [*]
 [dumpfile] "/home/asic/workspace/subdivision-surface-asic/tests/tb_subsurf/tb_subsurf.vcd"
-[dumpfile_mtime] "Wed May  7 06:22:35 2025"
-[dumpfile_size] 310869
+[dumpfile_mtime] "Wed May  7 06:38:59 2025"
+[dumpfile_size] 397112
 [savefile] "/home/asic/workspace/subdivision-surface-asic/waveform.gtkw"
-[timestart] 0
+[timestart] 320
 [size] 1676 911
 [pos] -1 -1
-*-14.000000 10734870 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+*-14.000000 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
 [markername] AA
 [markername] BB
 [markername] CC
@@ -47,13 +47,13 @@
 @28
 tb_subsurf.clk
 tb_subsurf.top.start
-@22
-tb_subsurf.top.in_use[31:0]
+@820
+tb_subsurf.top.state_string[63:0]
 @28
 tb_subsurf.top.en0
 @22
 tb_subsurf.top.do0[31:0]
-@29
+@28
 tb_subsurf.top.i[1:0]
 @200
 -
@@ -74,5 +74,7 @@ tb_subsurf.top.nbr.i[1:0]
 @200
 -
 -AVERAGER
+@821
+tb_subsurf.top.avgr.state_string[63:0]
 [pattern_trace] 1
 [pattern_trace] 0

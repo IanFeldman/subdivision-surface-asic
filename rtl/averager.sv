@@ -22,6 +22,21 @@ logic [1:0] i;
 enum {IDLE, GET_NEIGHBOR, READ_NEIGHBOR_VERTEX,
       READ_CURR_VERTEX, WRITE_CURR_VERTEX, DONE} state = IDLE;
 
+`ifndef SYNTHESIS
+logic [63:0] state_string;
+always_comb begin
+    case (state)
+        IDLE:                   state_string = "IDLE    ";
+        GET_NEIGHBOR:           state_string = "GET_NBR ";
+        READ_NEIGHBOR_VERTEX:   state_string = "RD_NBR_V";
+        READ_CURR_VERTEX:       state_string = "RD_CUR_V";
+        WRITE_CURR_VERTEX:      state_string = "WR_CUR_V";
+        DONE:                   state_string = "DONE    ";
+        default:                state_string = "UNKNOWN ";
+    endcase
+end
+`endif
+
 /* 
  * Initialize all signals
  * Wait for start to go high
