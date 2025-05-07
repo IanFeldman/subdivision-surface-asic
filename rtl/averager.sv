@@ -102,7 +102,7 @@ always_ff@(negedge clk) begin
             end
             else begin
                 /* translate neighbor index to ram address */
-                RAM_OBJ_A = RAM_NBR_Do[(`ADDR_WIDTH - 1):0] * 3 - 2;
+                RAM_OBJ_A = RAM_NBR_Do[(`ADDR_WIDTH - 1):0] * 3 - 2; /* idx by 1 */
                 RAM_NBR_A = RAM_NBR_A + 1;
                 neighbors_read = neighbors_read + 1;
                 state <= READ_NEIGHBOR_VERTEX;
@@ -124,8 +124,12 @@ always_ff@(negedge clk) begin
                 sum_z <= sum_z + (RAM_OBJ_Do >> 4);
                 i = 2'b11;
                 /* translate current index to ram address */
-                RAM_OBJ_A = curr_vertex[(`ADDR_WIDTH - 1):0] * 3 - 2; /* account for obj index by 1 */
-                state <= READ_CURR_VERTEX;
+                RAM_OBJ_A = curr_vertex[(`ADDR_WIDTH - 1):0] * 3 + 1;
+                /* only read curr vertex at the end */
+                if (neighbors_read == neighbor_count)
+                    state <= READ_CURR_VERTEX;
+                else
+                    state <= GET_NEIGHBOR;
             end
             i = i + 1;
         end
@@ -148,7 +152,7 @@ always_ff@(negedge clk) begin
         WRITE_CURR_VERTEX: begin
             /* setup write */
             if (i == 2'b00) begin
-                RAM_RES_A = curr_vertex[(`ADDR_WIDTH - 1):0] * 3 - 2; /* account for obj index by 1 */
+                RAM_RES_A = curr_vertex[(`ADDR_WIDTH - 1):0] * 3 + 1;
                 RAM_RES_Di = sum_x;
                 RAM_RES_WE = 4'b1111;
             end
