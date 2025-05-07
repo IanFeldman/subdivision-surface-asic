@@ -4,18 +4,35 @@ module averager #(parameter MAX_NEIGHBOR_COUNT=10)
 (
     input clk, start,
     input [31:0] vertex_count, face_count,
-    input [31:0] RAM_OBJ_Do, RAM_NBR_Do, RAM_AVG_Do,
-    output logic RAM_OBJ_EN, RAM_NBR_EN, RAM_AVG_EN,
-    output logic [8:0] RAM_OBJ_A, RAM_NBR_A, RAM_AVG_A,
-    output logic [3:0] RAM_OBJ_WE, RAM_NBR_WE, RAM_AVG_WE,
-    output logic [31:0] RAM_OBJ_Di, RAM_NBR_Di, RAM_AVG_Di,
+    input [31:0] RAM_OBJ_Do, RAM_NBR_Do, RAM_RES_Do,
+    output logic RAM_OBJ_EN, RAM_NBR_EN, RAM_RES_EN,
+    output logic [8:0] RAM_OBJ_A, RAM_NBR_A, RAM_RES_A,
+    output logic [3:0] RAM_OBJ_WE, RAM_NBR_WE, RAM_RES_WE,
+    output logic [31:0] RAM_OBJ_Di, RAM_NBR_Di, RAM_RES_Di,
     output logic busy
 );
 
-logic [31:0] vertex_a, vertex_b, vertex_c;
+`define ADDR_WIDTH 9
+
+/* assume that RAM_OBJ = RAM_RES at the start */
+
+logic [31:0] curr_vertex, neighbor_count, neighbors_read, sum_x, sum_y, sum_z;
 logic [1:0] i;
 
-enum {IDLE, READ_FACE} state = IDLE;
+enum {IDLE, GET_NEIGHBOR, READ_NEIGHBOR_VERTEX,
+      READ_CURR_VERTEX, WRITE_CURR_VERTEX, DONE} state = IDLE;
+
+/* 
+ * Initialize all signals
+ * Wait for start to go high
+ * 
+ * For each vert, v, in neighbor ram
+ *    Read in neighbor count, c
+ *    For each neighbor, n, in neighbors
+ *       Add n.x / B into x_sum, n.y / B into y_sum, n.z / B into z_sum
+ *    Add v.x(1 - cB) into x_sum, v.y(1 - cB) into y_sum, v.z(1 - cB) into z_sum
+ *    Save x_sum, y_sum, z_sum into result ram
+ */
 
 always_ff@(posedge clk) begin
     case (state)
@@ -23,6 +40,12 @@ always_ff@(posedge clk) begin
             /* init various signals */
             busy <= 1'b0;
             i = 2'b0;
+            curr_vertex = 32'b0; /* idx of curr vert, 0 -> (vertex_count - 1) */
+            neighbor_count = 32'b0;
+            neighbors_read = 32'b0;
+            sum_x <= 32'b0;
+            sum_y <= 32'b0;
+            sum_z <= 32'b0;
             /* init object ram signals */
             RAM_OBJ_Di <= 32'b0;
             RAM_OBJ_EN <= 1'b1;
@@ -32,24 +55,105 @@ always_ff@(posedge clk) begin
             RAM_NBR_Di <= 32'b0;
             RAM_NBR_EN <= 1'b1;
             RAM_NBR_WE <= 4'b0;
-            RAM_NBR_A = 9'b0;
+            RAM_NBR_A <= 9'b0;
+            /* init result ram signals */
+            RAM_RES_Di <= 32'b0;
+            RAM_RES_EN <= 1'b1;
+            RAM_RES_WE <= 4'b0;
+            RAM_RES_A = 9'b0;
             /* update state */
             if (start == 1'b1) begin
                 busy <= 1'b1;
-                RAM_OBJ_A = 2 + vertex_count[8:0] * 3;
-                state <= READ_FACE;
+                state <= GET_NEIGHBOR;
             end
         end
-        READ_FACE: begin
-            if (i == 2'b00)
-                vertex_a <= RAM_OBJ_Do;
-            else if (i == 2'b01)
-                vertex_b <= RAM_OBJ_Do;
+        GET_NEIGHBOR: begin
+            /* check if we have gone through all neighbors */
+            if (neighbors_read > neighbor_count) begin
+                /* move to next vertex */
+                curr_vertex = curr_vertex + 1;
+                /* check if done */
+                if (curr_vertex == vertex_count)
+                    state <= IDLE;
+                else begin
+                    RAM_NBR_A <= curr_vertex[(`ADDR_WIDTH - 1):0] * MAX_NEIGHBOR_COUNT;
+                    neighbors_read = 32'b0;
+                end
+            end
+            /* first time read in neighbor count */
+            else if (neighbors_read == 0) begin
+                neighbor_count = RAM_NBR_Do;
+                RAM_NBR_A <= RAM_NBR_A + 1;
+                neighbors_read = neighbors_read + 1;
+            end
+            else begin
+                /* translate neighbor index to ram address */
+                RAM_OBJ_A = RAM_NBR_Do[(`ADDR_WIDTH - 1):0] * 3 - 2;
+                RAM_NBR_A <= RAM_NBR_A + 1;
+                neighbors_read = neighbors_read + 1;
+                state <= READ_NEIGHBOR_VERTEX;
+            end
+        end
+        READ_NEIGHBOR_VERTEX: begin
+            /* read in x */
+            if (i == 2'b00) begin
+                sum_x <= sum_x + (RAM_OBJ_Do >> 4);
+                RAM_OBJ_A = RAM_OBJ_A + 1;
+            end
+            /* read in y */
+            else if (i == 2'b01) begin
+                sum_y <= sum_y + (RAM_OBJ_Do >> 4);
+                RAM_OBJ_A = RAM_OBJ_A + 1;
+            end
+            /* read in z */
             else if (i == 2'b10) begin
-                vertex_c = RAM_OBJ_Do;
+                sum_z <= sum_z + (RAM_OBJ_Do >> 4);
                 i = 2'b11;
+                /* translate current index to ram address */
+                RAM_OBJ_A = curr_vertex[(`ADDR_WIDTH - 1):0] * 3 - 2; /* account for obj index by 1 */
+                state <= READ_CURR_VERTEX;
+            end
+            i = i + 1;
+        end
+        READ_CURR_VERTEX: begin
+            /* read in x */
+            if (i == 2'b00)
+                sum_x <= sum_x + (RAM_OBJ_Do * (1 - (neighbor_count >> 4)));
+            /* read in y */
+            else if (i == 2'b01)
+                sum_y <= sum_y + (RAM_OBJ_Do * (1 - (neighbor_count >> 4)));
+            /* read in z */
+            else if (i == 2'b10) begin
+                sum_z <= sum_z + (RAM_OBJ_Do * (1 - (neighbor_count >> 4)));
+                i = 2'b11;
+                state <= WRITE_CURR_VERTEX;
             end
             RAM_OBJ_A = RAM_OBJ_A + 1;
+            i = i + 1;
+        end
+        WRITE_CURR_VERTEX: begin
+            /* setup write */
+            if (i == 2'b00) begin
+                RAM_RES_A = curr_vertex[(`ADDR_WIDTH - 1):0] * 3 - 2; /* account for obj index by 1 */
+                RAM_RES_Di <= sum_x;
+                RAM_RES_WE <= 4'b1111;
+            end
+            /* write x */
+            else if (i == 2'b01) begin
+                RAM_RES_A = RAM_RES_A + 1;
+                RAM_RES_Di <= sum_y;
+            end
+            /* write y */
+            else if (i == 2'b10) begin
+                RAM_RES_A = RAM_RES_A + 1;
+                RAM_RES_Di <= sum_z;
+            end
+            /* write z */
+            else begin
+                /* stop writing and move to next neighbor */
+                RAM_RES_WE <= 4'b0;
+                state <= GET_NEIGHBOR;
+            end
             i = i + 1;
         end
         default: begin
