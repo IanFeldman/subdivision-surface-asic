@@ -6,7 +6,7 @@ module averager #(parameter MAX_NEIGHBOR_COUNT=10)
 (
     input clk, start,
     input [31:0] vertex_count, face_count,
-    input [31:0] RAM_OBJ_Do, RAM_NBR_Do, RAM_RES_Do,
+    input signed [31:0] RAM_OBJ_Do, RAM_NBR_Do, RAM_RES_Do,
     output logic RAM_OBJ_EN, RAM_NBR_EN, RAM_RES_EN,
     output logic [(`ADDR_WIDTH - 1):0] RAM_OBJ_A, RAM_NBR_A, RAM_RES_A,
     output logic [3:0] RAM_OBJ_WE, RAM_NBR_WE, RAM_RES_WE,
@@ -16,8 +16,9 @@ module averager #(parameter MAX_NEIGHBOR_COUNT=10)
 
 /* assume that RAM_OBJ = RAM_RES at the start */
 
-logic [31:0] curr_vertex, neighbor_count, neighbors_read, sum_x, sum_y, sum_z;
-logic [31:0] neighbor_count_q;
+logic [31:0] curr_vertex, neighbor_count, neighbors_read;
+logic signed [31:0] sum_x, sum_y, sum_z;
+logic signed [31:0] neighbor_count_q;
 logic [1:0] i;
 assign neighbor_count_q = neighbor_count << 16;
 
@@ -140,13 +141,13 @@ always_ff@(negedge clk) begin
         READ_CURR_VERTEX: begin
             /* read in x */
             if (i == 2'b00)
-                sum_x <= sum_x + (RAM_OBJ_Do * (`Q_ONE - (neighbor_count_q >>> 4)));
+                sum_x <= sum_x + ((RAM_OBJ_Do * (`Q_ONE - (neighbor_count_q >>> 4))) >>> 16);
             /* read in y */
             else if (i == 2'b01)
-                sum_y <= sum_y + (RAM_OBJ_Do * (`Q_ONE - (neighbor_count_q >>> 4)));
+                sum_y <= sum_y + ((RAM_OBJ_Do * (`Q_ONE - (neighbor_count_q >>> 4))) >>> 16);
             /* read in z */
             else if (i == 2'b10) begin
-                sum_z <= sum_z + (RAM_OBJ_Do * (`Q_ONE - (neighbor_count_q >>> 4)));
+                sum_z <= sum_z + ((RAM_OBJ_Do * (`Q_ONE - (neighbor_count_q >>> 4))) >>> 16);
                 i = 2'b11;
                 state <= WRITE_CURR_VERTEX;
             end
