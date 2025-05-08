@@ -20,11 +20,14 @@ logic [31:0] curr_vertex, neighbor_count, neighbors_read;
 logic signed [31:0] sum_x, sum_y, sum_z;
 logic signed [31:0] neighbor_count_q, neighbor_vertex_weight, curr_vertex_weight;
 logic [1:0] i;
+logic signed [63:0] product_64; /* for curr vertex weight multiplication */
+
 
 /* continuous assignments */
 assign neighbor_count_q = neighbor_count << 16;
 assign neighbor_vertex_weight = (RAM_OBJ_Do >>> 4);
-assign curr_vertex_weight = $signed(RAM_OBJ_Do * (`Q_ONE - (neighbor_count_q >>> 4))) >>> 16;
+assign product_64 = $signed(RAM_OBJ_Do) * $signed(`Q_ONE - (neighbor_count_q >>> 4));
+assign curr_vertex_weight = product_64[47:16];
 
 enum {IDLE, GET_NEIGHBOR, READ_NEIGHBOR_VERTEX,
       READ_CURR_VERTEX, WRITE_CURR_VERTEX, DONE} state = IDLE;
