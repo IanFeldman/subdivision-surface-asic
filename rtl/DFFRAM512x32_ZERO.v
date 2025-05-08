@@ -44,6 +44,7 @@ module DFFRAM512x32_ZERO  (
        input   wire                         write;
        
        reg [31:0] RAM[(NUM_WORDS-1): 0];
+       initial $readmemh("null.hex", RAM);
    
        always @(posedge CLK) begin
            if (write == 1'b1) begin $writememh("hi", RAM); end
