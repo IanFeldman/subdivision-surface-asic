@@ -88,25 +88,24 @@ always_ff@(negedge clk) begin
             /* update state */
             if (start == 1'b1) begin
                 /* init obj ram signals */
-                RAM_OBJ_Di = 32'b0;
-                RAM_OBJ_EN = 1'b1;
-                RAM_OBJ_WE = 4'b0;
-                RAM_OBJ_A = 9'b0;
+                RAM_OBJ_Di <= 32'b0;
+                RAM_OBJ_EN <= 1'b1;
+                RAM_OBJ_WE <= 4'b0;
                 /* init nbr ram signals */
-                RAM_NBR_Di = 32'b0;
-                RAM_NBR_EN = 1'b1;
-                RAM_NBR_WE = 4'b1111;
-                RAM_NBR_A = 9'b0;
+                RAM_NBR_Di <= 32'b0;
+                RAM_NBR_EN <= 1'b1;
+                RAM_NBR_WE <= 4'b1111;
+                RAM_NBR_A <= 9'b0;
                 /* init various signals */
                 busy <= 1'b1;
-                i = 2'b0;
-                curr_face = 32'b0;
-                curr_vertex = 32'b0;
+                i <= 2'b0;
+                curr_face <= 32'b0;
+                curr_vertex <= 32'b0;
                 vertex_a <= 32'b0;
                 vertex_b <= 32'b0;
                 vertex_c <= 32'b0;
                 /* set address to first face */
-                RAM_OBJ_A = vertex_count[(`ADDR_WIDTH - 1):0] * 3 + 2;
+                RAM_OBJ_A <= vertex_count[(`ADDR_WIDTH - 1):0] * 3 + 2;
                 state = CLEAR;
             end
         end
@@ -114,11 +113,11 @@ always_ff@(negedge clk) begin
         CLEAR: begin
             /* curr_vertex is index here */
             if (curr_vertex < vertex_count) begin
-                RAM_NBR_A = RAM_NBR_A + MAX_NEIGHBOR_COUNT;
-                curr_vertex = curr_vertex + 1;
+                RAM_NBR_A <= RAM_NBR_A + MAX_NEIGHBOR_COUNT;
+                curr_vertex <= curr_vertex + 1;
             end
             else begin
-                RAM_NBR_WE = 4'b0000;
+                RAM_NBR_WE <= 4'b0000;
                 state = READ_FACE;
             end
         end
@@ -128,21 +127,24 @@ always_ff@(negedge clk) begin
             if (curr_face == face_count)
                 state = DONE;
             else begin
-                if (i == 2'b00)
+                if (i == 2'b00) begin
                     vertex_a <= RAM_OBJ_Do;
-                else if (i == 2'b01)
+                    i <= i + 1;
+                end
+                else if (i == 2'b01) begin
                     vertex_b <= RAM_OBJ_Do;
+                    i <= i + 1;
+                end
                 else if (i == 2'b10) begin
                     vertex_c <= RAM_OBJ_Do;
-                    curr_vertex = vertex_a;
+                    curr_vertex <= vertex_a;
                     test_vertex = vertex_b;
                     vertex_present = 1'b0;
-                    i = 2'b11; /* increments back to 00 */
-                    curr_face = curr_face + 1;
+                    i <= 2'b00;
+                    curr_face <= curr_face + 1;
                     state = CHECK_VERT;
                 end
-                RAM_OBJ_A = RAM_OBJ_A + 1;
-                i = i + 1;
+                RAM_OBJ_A <= RAM_OBJ_A + 1;
             end
         end
         /* set vertex_present if curr_vertex has neighbor test_vertex */
@@ -151,7 +153,7 @@ always_ff@(negedge clk) begin
             case (cv_state)
                 SETUP_NCOUNT: begin
                     neighbor_list_addr = (curr_vertex[(`ADDR_WIDTH - 1):0] - 1) * MAX_NEIGHBOR_COUNT; /* TODO: revisit bit widths */
-                    RAM_NBR_A = neighbor_list_addr;
+                    RAM_NBR_A <= neighbor_list_addr;
                     cv_state = SETUP_LOOP;
                 end
                 SETUP_LOOP: begin
@@ -163,7 +165,7 @@ always_ff@(negedge clk) begin
                     else begin
                         neighbor_idx = 4'b0;
                         /* set address of first neighbor */
-                        RAM_NBR_A = neighbor_list_addr + {5'b0, neighbor_idx} + 1;
+                        RAM_NBR_A <= neighbor_list_addr + {5'b0, neighbor_idx} + 1;
                         cv_state = LOOP;
                     end
                 end
@@ -181,7 +183,7 @@ always_ff@(negedge clk) begin
                     /* move on to next neighbor */
                     else begin
                         neighbor_idx = neighbor_idx + 1;
-                        RAM_NBR_A = neighbor_list_addr + {5'b0, neighbor_idx} + 1;
+                        RAM_NBR_A <= neighbor_list_addr + {5'b0, neighbor_idx} + 1;
                     end
                 end
                 /* update state */
@@ -207,7 +209,7 @@ always_ff@(negedge clk) begin
                 if (test_vertex == vertex_b)
                     test_vertex = vertex_c;
                 else if (test_vertex == vertex_c) begin
-                    curr_vertex = vertex_b;
+                    curr_vertex <= vertex_b;
                     test_vertex = vertex_a;
                 end
             end
@@ -215,7 +217,7 @@ always_ff@(negedge clk) begin
                 if (test_vertex == vertex_a)
                     test_vertex = vertex_c;
                 else if (test_vertex == vertex_c) begin
-                    curr_vertex = vertex_c;
+                    curr_vertex <= vertex_c;
                     test_vertex = vertex_a;
                 end
             end
@@ -236,22 +238,22 @@ always_ff@(negedge clk) begin
                     else begin
                         neighbor_count = neighbor_count + 1;
                         /* set ram signals */
-                        RAM_NBR_A = neighbor_list_addr;
-                        RAM_NBR_Di = {28'b0, neighbor_count};
-                        RAM_NBR_WE = 4'b1111;
+                        RAM_NBR_A <= neighbor_list_addr;
+                        RAM_NBR_Di <= {28'b0, neighbor_count};
+                        RAM_NBR_WE <= 4'b1111;
                         in_state = SETUP_N_WRITE;
                     end
                 end
                 SETUP_N_WRITE: begin
                     /* go to address of new neighbor */
-                    RAM_NBR_A = neighbor_list_addr + {5'b0, neighbor_count};
-                    RAM_NBR_Di = test_vertex;
+                    RAM_NBR_A <= neighbor_list_addr + {5'b0, neighbor_count};
+                    RAM_NBR_Di <= test_vertex;
                     in_state = IN_DONE;
                 end
                 IN_DONE: begin
-                    RAM_OBJ_EN = 1'b1;
-                    RAM_NBR_EN = 1'b1;
-                    RAM_NBR_WE = 4'b0;
+                    RAM_OBJ_EN <= 1'b1;
+                    RAM_NBR_EN <= 1'b1;
+                    RAM_NBR_WE <= 4'b0;
                     in_state = SETUP_NCOUNT_WRITE;
                     state = UPDATE_CHECK;
                 end
