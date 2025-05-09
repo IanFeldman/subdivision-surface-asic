@@ -106,7 +106,7 @@ always_ff@(negedge clk) begin
                 vertex_c <= 32'b0;
                 /* set address to first face */
                 RAM_OBJ_A <= vertex_count[(`ADDR_WIDTH - 1):0] * 3 + 2;
-                state = CLEAR;
+                state <= CLEAR;
             end
         end
         /* clear the neighbor count for each vertex */
@@ -118,14 +118,14 @@ always_ff@(negedge clk) begin
             end
             else begin
                 RAM_NBR_WE <= 4'b0000;
-                state = READ_FACE;
+                state <= READ_FACE;
             end
         end
         /* get face vertices a, b, c */
         READ_FACE: begin
             /* end loop */
             if (curr_face == face_count)
-                state = DONE;
+                state <= DONE;
             else begin
                 if (i == 2'b00) begin
                     vertex_a <= RAM_OBJ_Do;
@@ -138,11 +138,11 @@ always_ff@(negedge clk) begin
                 else if (i == 2'b10) begin
                     vertex_c <= RAM_OBJ_Do;
                     curr_vertex <= vertex_a;
-                    test_vertex = vertex_b;
-                    vertex_present = 1'b0;
+                    test_vertex <= vertex_b;
+                    vertex_present <= 1'b0;
                     i <= 2'b00;
                     curr_face <= curr_face + 1;
-                    state = CHECK_VERT;
+                    state <= CHECK_VERT;
                 end
                 RAM_OBJ_A <= RAM_OBJ_A + 1;
             end
@@ -154,19 +154,19 @@ always_ff@(negedge clk) begin
                 SETUP_NCOUNT: begin
                     neighbor_list_addr = (curr_vertex[(`ADDR_WIDTH - 1):0] - 1) * MAX_NEIGHBOR_COUNT; /* TODO: revisit bit widths */
                     RAM_NBR_A <= neighbor_list_addr;
-                    cv_state = SETUP_LOOP;
+                    cv_state <= SETUP_LOOP;
                 end
                 SETUP_LOOP: begin
                     /* read neighbor count */
                     neighbor_count = RAM_NBR_Do[3:0]; /* TODO revisit bit width */
                     if (neighbor_count == 4'b0) begin
-                        cv_state = CV_DONE;
+                        cv_state <= CV_DONE;
                     end
                     else begin
                         neighbor_idx = 4'b0;
                         /* set address of first neighbor */
                         RAM_NBR_A <= neighbor_list_addr + {5'b0, neighbor_idx} + 1;
-                        cv_state = LOOP;
+                        cv_state <= LOOP;
                     end
                 end
                 LOOP: begin
@@ -174,11 +174,11 @@ always_ff@(negedge clk) begin
                     neighbor = RAM_NBR_Do;
                     /* check idx */
                     if (neighbor_idx == neighbor_count)
-                        cv_state = CV_DONE;
+                        cv_state <= CV_DONE;
                     /* check neighbor */
                     else if (neighbor == test_vertex) begin
-                        vertex_present = 1'b1;
-                        cv_state = CV_DONE;
+                        vertex_present <= 1'b1;
+                        cv_state <= CV_DONE;
                     end
                     /* move on to next neighbor */
                     else begin
@@ -188,12 +188,12 @@ always_ff@(negedge clk) begin
                 end
                 /* update state */
                 CV_DONE: begin
-                    cv_state = SETUP_NCOUNT;
+                    cv_state <= SETUP_NCOUNT;
                     /* either insert or update check */
                     if (vertex_present == 1'b0)
-                        state = INSERT_NEIGHBOR;
+                        state <= INSERT_NEIGHBOR;
                     else
-                        state = UPDATE_CHECK;
+                        state <= UPDATE_CHECK;
                 end
                 default begin
                 end
@@ -202,30 +202,30 @@ always_ff@(negedge clk) begin
         /* Move to next curr_vertex, test_vertex pair */
         UPDATE_CHECK: begin
             /* reset vertex present */
-            vertex_present = 1'b0;
+            vertex_present <= 1'b0;
             /* by default rerun check vertex on next combo */
-            state = CHECK_VERT;
+            state <= CHECK_VERT;
             if (curr_vertex == vertex_a) begin
                 if (test_vertex == vertex_b)
-                    test_vertex = vertex_c;
+                    test_vertex <= vertex_c;
                 else if (test_vertex == vertex_c) begin
                     curr_vertex <= vertex_b;
-                    test_vertex = vertex_a;
+                    test_vertex <= vertex_a;
                 end
             end
             else if (curr_vertex == vertex_b) begin
                 if (test_vertex == vertex_a)
-                    test_vertex = vertex_c;
+                    test_vertex <= vertex_c;
                 else if (test_vertex == vertex_c) begin
                     curr_vertex <= vertex_c;
-                    test_vertex = vertex_a;
+                    test_vertex <= vertex_a;
                 end
             end
             else if (curr_vertex == vertex_c) begin
                 if (test_vertex == vertex_a)
-                    test_vertex = vertex_b;
+                    test_vertex <= vertex_b;
                 else if (test_vertex == vertex_b)
-                    state = READ_FACE; /* read the next face in */
+                    state <= READ_FACE; /* read the next face in */
             end
         end
         /* insert test_vertex into curr_vertex list */
@@ -234,28 +234,28 @@ always_ff@(negedge clk) begin
                 SETUP_NCOUNT_WRITE: begin
                     /* increment neighbor count */
                     if (neighbor_count == MAX_NEIGHBOR_COUNT)
-                        in_state = IN_DONE;
+                        in_state <= IN_DONE;
                     else begin
                         neighbor_count = neighbor_count + 1;
                         /* set ram signals */
                         RAM_NBR_A <= neighbor_list_addr;
                         RAM_NBR_Di <= {28'b0, neighbor_count};
                         RAM_NBR_WE <= 4'b1111;
-                        in_state = SETUP_N_WRITE;
+                        in_state <= SETUP_N_WRITE;
                     end
                 end
                 SETUP_N_WRITE: begin
                     /* go to address of new neighbor */
                     RAM_NBR_A <= neighbor_list_addr + {5'b0, neighbor_count};
                     RAM_NBR_Di <= test_vertex;
-                    in_state = IN_DONE;
+                    in_state <= IN_DONE;
                 end
                 IN_DONE: begin
                     RAM_OBJ_EN <= 1'b1;
                     RAM_NBR_EN <= 1'b1;
                     RAM_NBR_WE <= 4'b0;
-                    in_state = SETUP_NCOUNT_WRITE;
-                    state = UPDATE_CHECK;
+                    in_state <= SETUP_NCOUNT_WRITE;
+                    state <= UPDATE_CHECK;
                 end
                 default: begin
                 end
@@ -263,7 +263,7 @@ always_ff@(negedge clk) begin
         end
         DONE: begin
             busy <= 1'b0;
-            state = IDLE;
+            state <= IDLE;
         end
         default begin
         end
