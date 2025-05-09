@@ -6,7 +6,9 @@ module subdiv (
     output logic RAM1_EN, RAM2_EN, RAM3_EN,
     output logic [8:0] RAM1_A, RAM2_A, RAM3_A,
     output logic [3:0] RAM1_WE, RAM2_WE, RAM3_WE,
-    output logic [31:0] RAM1_Di, RAM2_Di, RAM3_Di
+    output logic [31:0] RAM1_Di, RAM2_Di, RAM3_Di,
+    output logic [31:0] new_vertex_count, new_face_count,
+    output logic busy
 );
 
 enum {INIT, V_COUNT, F_COUNT, WR_CNT, SETUP_MAP, READ_FACE, MAP_EDGE, FIN_EDGE,
@@ -27,6 +29,9 @@ logic signed [31:0] y1, y2, ym;
 logic signed [31:0] z1, z2, zm;
 logic [2:0] i;
 logic found;
+
+assign new_vertex_count = new_vertex - 1;
+assign new_face_count = face_count * 4;
 
 `ifndef SYNTHESIS
 logic [63:0] state_string;
@@ -106,6 +111,8 @@ end
 always_ff @(negedge clk) begin
     case (state)
         INIT: begin
+            busy <= 0;
+
             RAM1_Di <= 32'b0;
             RAM1_EN <= 1'b1;
             RAM1_WE <= 4'b0;
@@ -121,8 +128,10 @@ always_ff @(negedge clk) begin
             RAM3_WE <= 4'b0;
             RAM3_A <= 9'b0;
 
-            if (start == 1'b1)
+            if (start == 1'b1) begin
+                busy <= 1;
                 state <= V_COUNT;
+            end
         end
         V_COUNT: begin
             vertex_count <= RAM1_Do;
@@ -153,7 +162,7 @@ always_ff @(negedge clk) begin
         end
         WR_CNT: begin
             /* Write out new face count */
-            RAM2_A <= 1 + (vertex_count + edge_count) * 3;
+            RAM2_A <= (1 + (vertex_count[8:0] + edge_count[8:0]) * 3);
             RAM2_Di <= face_count << 2;
             state <= READ_FACE;
         end
@@ -321,7 +330,7 @@ always_ff @(negedge clk) begin
             state <= READ_FACE;
         end
         WR_ORIG: begin
-            if (RAM2_A > vertex_count * 3 - 1) begin
+            if (RAM2_A > vertex_count[8:0] * 3 - 1) begin
                 state <= DONE;
                 RAM2_WE <= 0;
             end else begin
@@ -332,6 +341,8 @@ always_ff @(negedge clk) begin
             end
         end
         DONE: begin
+            busy <= 0;
+            state <= INIT;
         end
     endcase
 end
