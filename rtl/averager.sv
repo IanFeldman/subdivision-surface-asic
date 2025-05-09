@@ -66,28 +66,28 @@ always_ff@(negedge clk) begin
             /* update state */
             if (start == 1'b1) begin
                 /* init various signals */
-                i = 2'b0;
-                curr_vertex = 32'b0; /* idx of curr vert, 0 -> (vertex_count - 1) */
-                neighbor_count = 32'b0;
-                neighbors_read = 32'b0;
+                i <= 2'b0;
+                curr_vertex <= 32'b0; /* idx of curr vert, 0 -> (vertex_count - 1) */
+                neighbor_count <= 32'b0;
+                neighbors_read <= 32'b0;
                 sum_x <= 32'b0;
                 sum_y <= 32'b0;
                 sum_z <= 32'b0;
                 /* init object ram signals */
-                RAM_OBJ_Di = 32'b0;
-                RAM_OBJ_EN = 1'b1;
-                RAM_OBJ_WE = 4'b0;
-                RAM_OBJ_A = 9'b0;
+                RAM_OBJ_Di <= 32'b0;
+                RAM_OBJ_EN <= 1'b1;
+                RAM_OBJ_WE <= 4'b0;
+                RAM_OBJ_A <= 9'b0;
                 /* init neighbor ram signals */
-                RAM_NBR_Di = 32'b0;
-                RAM_NBR_EN = 1'b1;
-                RAM_NBR_WE = 4'b0;
-                RAM_NBR_A = 9'b0;
+                RAM_NBR_Di <= 32'b0;
+                RAM_NBR_EN <= 1'b1;
+                RAM_NBR_WE <= 4'b0;
+                RAM_NBR_A <= 9'b0;
                 /* init result ram signals */
-                RAM_RES_Di = 32'b0;
-                RAM_RES_EN = 1'b1;
-                RAM_RES_WE = 4'b0;
-                RAM_RES_A = 9'b0;
+                RAM_RES_Di <= 32'b0;
+                RAM_RES_EN <= 1'b1;
+                RAM_RES_WE <= 4'b0;
+                RAM_RES_A <= 9'b0;
                 busy <= 1'b1;
                 state <= GET_NEIGHBOR;
             end
@@ -96,20 +96,20 @@ always_ff@(negedge clk) begin
             /* check if we have gone through all neighbors */
             if (neighbors_read > neighbor_count) begin
                 /* move to next vertex */
-                curr_vertex = curr_vertex + 1;
+                curr_vertex <= curr_vertex + 1;
                 /* check if done */
-                if (curr_vertex == vertex_count)
+                if (curr_vertex + 1 == vertex_count)
                     state <= IDLE;
                 else begin
-                    RAM_NBR_A = curr_vertex[(`ADDR_WIDTH - 1):0] * MAX_NEIGHBOR_COUNT;
-                    neighbors_read = 32'b0;
+                    RAM_NBR_A <= (curr_vertex[(`ADDR_WIDTH - 1):0] + 1) * MAX_NEIGHBOR_COUNT;
+                    neighbors_read <= 32'b0;
                 end
             end
             /* first time read in neighbor count */
             else if (neighbors_read == 0) begin
-                neighbor_count = RAM_NBR_Do;
-                RAM_NBR_A = RAM_NBR_A + 1;
-                neighbors_read = neighbors_read + 1;
+                neighbor_count <= RAM_NBR_Do;
+                RAM_NBR_A <= RAM_NBR_A + 1;
+                neighbors_read <= neighbors_read + 1;
                 /* reset sums */
                 sum_x <= 32'b0;
                 sum_y <= 32'b0;
@@ -117,9 +117,9 @@ always_ff@(negedge clk) begin
             end
             else begin
                 /* translate neighbor index to ram address */
-                RAM_OBJ_A = RAM_NBR_Do[(`ADDR_WIDTH - 1):0] * 3 - 2; /* idx by 1 */
-                RAM_NBR_A = RAM_NBR_A + 1;
-                neighbors_read = neighbors_read + 1;
+                RAM_OBJ_A <= RAM_NBR_Do[(`ADDR_WIDTH - 1):0] * 3 - 2; /* idx by 1 */
+                RAM_NBR_A <= RAM_NBR_A + 1;
+                neighbors_read <= neighbors_read + 1;
                 state <= READ_NEIGHBOR_VERTEX;
             end
         end
@@ -127,68 +127,72 @@ always_ff@(negedge clk) begin
             /* read in x */
             if (i == 2'b00) begin
                 sum_x <= sum_x + neighbor_vertex_weight;
-                RAM_OBJ_A = RAM_OBJ_A + 1;
+                RAM_OBJ_A <= RAM_OBJ_A + 1;
+                i <= i + 1;
             end
             /* read in y */
             else if (i == 2'b01) begin
                 sum_y <= sum_y + neighbor_vertex_weight;
-                RAM_OBJ_A = RAM_OBJ_A + 1;
+                RAM_OBJ_A <= RAM_OBJ_A + 1;
+                i <= i + 1;
             end
             /* read in z */
             else if (i == 2'b10) begin
                 sum_z <= sum_z + neighbor_vertex_weight;
-                i = 2'b11;
+                i <= 2'b00;
                 /* only read curr vertex at the end */
                 if (neighbors_read > neighbor_count) begin
                     /* translate current index to ram address */
-                    RAM_OBJ_A = curr_vertex[(`ADDR_WIDTH - 1):0] * 3 + 1;
+                    RAM_OBJ_A <= curr_vertex[(`ADDR_WIDTH - 1):0] * 3 + 1;
                     state <= READ_CURR_VERTEX;
                 end
                 else
                     state <= GET_NEIGHBOR;
             end
-            i = i + 1;
         end
         READ_CURR_VERTEX: begin
             /* read in x */
-            if (i == 2'b00)
+            if (i == 2'b00) begin
                 sum_x <= sum_x + curr_vertex_weight;
+                i <= i + 1;
+            end
             /* read in y */
-            else if (i == 2'b01)
+            else if (i == 2'b01) begin
                 sum_y <= sum_y + curr_vertex_weight;
+                i <= i + 1;
+            end
             /* read in z */
             else if (i == 2'b10) begin
                 sum_z <= sum_z + curr_vertex_weight;
-                i = 2'b11;
+                i <= 2'b00;
                 state <= WRITE_CURR_VERTEX;
             end
-            RAM_OBJ_A = RAM_OBJ_A + 1;
-            i = i + 1;
+            RAM_OBJ_A <= RAM_OBJ_A + 1;
         end
         WRITE_CURR_VERTEX: begin
             /* setup write */
             if (i == 2'b00) begin
-                RAM_RES_A = curr_vertex[(`ADDR_WIDTH - 1):0] * 3 + 1;
-                RAM_RES_Di = sum_x;
-                RAM_RES_WE = 4'b1111;
+                RAM_RES_A <= curr_vertex[(`ADDR_WIDTH - 1):0] * 3 + 1;
+                RAM_RES_Di <= sum_x;
+                RAM_RES_WE <= 4'b1111;
             end
             /* write x */
             else if (i == 2'b01) begin
-                RAM_RES_A = RAM_RES_A + 1;
-                RAM_RES_Di = sum_y;
+                RAM_RES_A <= RAM_RES_A + 1;
+                RAM_RES_Di <= sum_y;
             end
             /* write y */
             else if (i == 2'b10) begin
-                RAM_RES_A = RAM_RES_A + 1;
-                RAM_RES_Di = sum_z;
+                RAM_RES_A <= RAM_RES_A + 1;
+                RAM_RES_Di <= sum_z;
             end
             /* write z */
             else begin
                 /* stop writing and move to next neighbor */
-                RAM_RES_WE = 4'b0;
+                RAM_RES_WE <= 4'b0;
                 state <= GET_NEIGHBOR;
             end
-            i = i + 1;
+            i <= i + 1;
         end
         default: begin
         end
