@@ -47,6 +47,27 @@ always_comb begin
 end
 `endif
 
+/*
+ * Wait for start to go high
+ * Initialize all signals
+ *
+ * For each face, f, in obj
+ *    Read in vertex_a, vertex_b, vertex_c
+ *    For vertex_a:
+ *       Read neighbor count from neighbor list
+ *       Iterate over neighbors
+ *       If vertex_b not in neighbor list:
+ *          Write vertex_b to neighbor list
+ *          Increment neighbor count
+ *       If vertex_c not in neighbor list:
+ *          Write vertex_b to neighbor list
+ *          Increment neighbor count
+ *    For vertex_b:
+ *       ...
+ *    For vertex_c:
+ *       ...
+ */
+
 /* RAM address width 9 bits */
 logic [31:0] curr_face, vertex_a, vertex_b, vertex_c;
 logic [1:0] i;
