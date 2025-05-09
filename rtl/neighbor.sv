@@ -14,7 +14,7 @@ module neighbor #(parameter MAX_NEIGHBOR_COUNT=10)
     output logic busy
 );
 
-enum {IDLE, READ_FACE, CHECK_VERT, UPDATE_CHECK, INSERT_NEIGHBOR, DONE} state = IDLE;
+enum {IDLE, CLEAR, READ_FACE, CHECK_VERT, UPDATE_CHECK, INSERT_NEIGHBOR, DONE} state = IDLE;
 enum {SETUP_NCOUNT, SETUP_LOOP, LOOP, CV_DONE} cv_state = SETUP_NCOUNT;
 enum {SETUP_NCOUNT_WRITE, SETUP_N_WRITE, IN_DONE} in_state = SETUP_NCOUNT_WRITE;
 
@@ -24,6 +24,7 @@ logic [63:0] state_string, cv_state_string, in_state_string;
 always_comb begin
     case (state)
         IDLE:            state_string = "IDLE    ";
+        CLEAR:           state_string = "CLEAR   ";
         READ_FACE:       state_string = "READ_FCE";
         CHECK_VERT:      state_string = "CHK_VERT";
         UPDATE_CHECK:    state_string = "UPDT_CHK";
@@ -86,25 +87,38 @@ always_ff@(negedge clk) begin
             busy <= 1'b0;
             /* update state */
             if (start == 1'b1) begin
-                /* init ram 1 signals */
+                /* init obj ram signals */
                 RAM_OBJ_Di = 32'b0;
                 RAM_OBJ_EN = 1'b1;
                 RAM_OBJ_WE = 4'b0;
                 RAM_OBJ_A = 9'b0;
-                /* init ram 2 signals */
+                /* init nbr ram signals */
                 RAM_NBR_Di = 32'b0;
                 RAM_NBR_EN = 1'b1;
-                RAM_NBR_WE = 4'b0;
+                RAM_NBR_WE = 4'b1111;
                 RAM_NBR_A = 9'b0;
                 /* init various signals */
                 busy <= 1'b1;
                 i = 2'b0;
                 curr_face = 32'b0;
+                curr_vertex = 32'b0;
                 vertex_a <= 32'b0;
                 vertex_b <= 32'b0;
                 vertex_c <= 32'b0;
                 /* set address to first face */
                 RAM_OBJ_A = vertex_count[(`ADDR_WIDTH - 1):0] * 3 + 2;
+                state = CLEAR;
+            end
+        end
+        /* clear the neighbor count for each vertex */
+        CLEAR: begin
+            /* curr_vertex is index here */
+            if (curr_vertex < vertex_count) begin
+                RAM_NBR_A = RAM_NBR_A + MAX_NEIGHBOR_COUNT;
+                curr_vertex = curr_vertex + 1;
+            end
+            else begin
+                RAM_NBR_WE = 4'b0000;
                 state = READ_FACE;
             end
         end

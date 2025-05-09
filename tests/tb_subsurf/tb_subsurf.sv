@@ -25,7 +25,7 @@ DFFRAM512x32 ram0 (
     .write(write0)
 );
 
-DFFRAM512x32_ZERO ram1 (
+DFFRAM512x32 ram1 (
     .CLK(clk),
     .WE0(we1),
     .EN0(en1),
@@ -89,7 +89,8 @@ initial begin
     start = 1'b1;
     #10;
     start = 1'b0;
-    #50000;
+    #1000000;
+    /* averager writes result to ram2 */
     write2 = 1'b1;
     #10;
     write2 = 1'b0;
