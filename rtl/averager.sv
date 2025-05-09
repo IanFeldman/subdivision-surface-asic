@@ -30,7 +30,7 @@ assign product_64 = $signed(RAM_OBJ_Do) * $signed(`Q_ONE - (neighbor_count_q >>>
 assign curr_vertex_weight = product_64[47:16];
 
 enum {IDLE, GET_NEIGHBOR, READ_NEIGHBOR_VERTEX,
-      READ_CURR_VERTEX, WRITE_CURR_VERTEX, DONE} state = IDLE;
+      READ_CURR_VERTEX, WRITE_CURR_VERTEX, DONE} state;
 
 `ifndef SYNTHESIS
 logic [63:0] state_string;

@@ -42,7 +42,7 @@ logic [31:0] di0_a, di1_a, di2_a;
 
 /* control signals */
 logic [1:0] i;
-enum {NONE, SUBDIV, COPY, NEIGHBOR, AVERAGER} in_use = NONE;
+enum {NONE, SUBDIV, COPY, NEIGHBOR, AVERAGER} in_use;
 
 /* debug state - simulation only */
 `ifndef SYNTHESIS

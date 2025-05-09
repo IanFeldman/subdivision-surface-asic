@@ -13,7 +13,7 @@ module copy
     output logic busy
 );
 
-enum {IDLE, BUSY} state = IDLE;
+enum {IDLE, BUSY} state;
 logic started;
 logic [(`ADDR_WIDTH - 1):0] address;
 

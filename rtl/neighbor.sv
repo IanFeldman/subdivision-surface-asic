@@ -14,9 +14,9 @@ module neighbor #(parameter MAX_NEIGHBOR_COUNT=10)
     output logic busy
 );
 
-enum {IDLE, CLEAR, READ_FACE, CHECK_VERT, UPDATE_CHECK, INSERT_NEIGHBOR, DONE} state = IDLE;
-enum {SETUP_NCOUNT, SETUP_LOOP, LOOP, CV_DONE} cv_state = SETUP_NCOUNT;
-enum {SETUP_NCOUNT_WRITE, SETUP_N_WRITE, IN_DONE} in_state = SETUP_NCOUNT_WRITE;
+enum {IDLE, CLEAR, READ_FACE, CHECK_VERT, UPDATE_CHECK, INSERT_NEIGHBOR, DONE} state;
+enum {SETUP_NCOUNT, SETUP_LOOP, LOOP, CV_DONE} cv_state;
+enum {SETUP_NCOUNT_WRITE, SETUP_N_WRITE, IN_DONE} in_state;
 
 /* debug state - simulation only */
 `ifndef SYNTHESIS
