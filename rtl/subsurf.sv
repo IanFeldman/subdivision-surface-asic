@@ -1,4 +1,5 @@
 `timescale 1ns/1ps
+`define ADDR_WIDTH 9
 
 /* top module */
 module subsurf
@@ -6,7 +7,7 @@ module subsurf
     input clk, start,
     input [31:0] do0, do1, do2,
     output logic en0, en1, en2,
-    output logic [8:0] a0, a1, a2,
+    output logic [(`ADDR_WIDTH-1):0] a0, a1, a2,
     output logic [3:0] we0, we1, we2,
     output logic [31:0] di0, di1, di2,
     output logic busy
@@ -18,19 +19,19 @@ logic subdiv_busy, neighbor_busy, averager_busy;
 
 /* subdiv RAM signals */
 logic en0_s, en1_s, en2_s;
-logic [8:0] a0_s, a1_s, a2_s;
+logic [(`ADDR_WIDTH-1):0] a0_s, a1_s, a2_s;
 logic [3:0] we0_s, we1_s, we2_s;
 logic [31:0] di0_s, di1_s, di2_s;
 
 /* neighbor RAM signals */
 logic en0_n, en1_n;
-logic [8:0] a0_n, a1_n;
+logic [(`ADDR_WIDTH-1):0] a0_n, a1_n;
 logic [3:0] we0_n, we1_n;
 logic [31:0] di0_n, di1_n;
 
 /* averager RAM signals */
 logic en0_a, en1_a, en2_a;
-logic [8:0] a0_a, a1_a, a2_a;
+logic [(`ADDR_WIDTH-1):0] a0_a, a1_a, a2_a;
 logic [3:0] we0_a, we1_a, we2_a;
 logic [31:0] di0_a, di1_a, di2_a;
 
@@ -144,7 +145,7 @@ always_comb begin
             en2 = 1'b0;
             a0 = a0_n;
             a1 = a1_n;
-            a2 = 9'b0;
+            a2 = `ADDR_WIDTH'b0;
             we0 = we0_n;
             we1 = we1_n;
             we2 = 4'b0;
@@ -170,9 +171,9 @@ always_comb begin
             en0 = 1'b0;
             en1 = 1'b0;
             en2 = 1'b0;
-            a0 = 9'b0;
-            a1 = 9'b0;
-            a2 = 9'b0;
+            a0 = `ADDR_WIDTH'b0;
+            a1 = `ADDR_WIDTH'b0;
+            a2 = `ADDR_WIDTH'b0;
             we0 = 4'b0;
             we1 = 4'b0;
             we2 = 4'b0;

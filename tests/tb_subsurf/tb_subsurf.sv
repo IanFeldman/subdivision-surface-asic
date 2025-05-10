@@ -1,16 +1,14 @@
 `timescale 1ns/1ps
+`define ADDR_WIDTH 9
 
 module tb_subsurf;
 
-// Declare test variables
 logic clk;
-reg [31:0] mem[((2**9)-1): 0];
-
 logic [3:0] we0, we1, we2;
 logic en0, en1, en2;
 logic [31:0] di0, di1, di2;
 logic [31:0] do0, do1, do2;
-logic [8:0] a0, a1, a2;
+logic [(`ADDR_WIDTH - 1):0] a0, a1, a2;
 logic write0, write1, write2;
 
 logic start, busy;

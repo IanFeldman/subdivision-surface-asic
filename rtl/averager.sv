@@ -78,17 +78,17 @@ always_ff@(negedge clk) begin
                 RAM_OBJ_Di <= 32'b0;
                 RAM_OBJ_EN <= 1'b1;
                 RAM_OBJ_WE <= 4'b0;
-                RAM_OBJ_A <= 9'b0;
+                RAM_OBJ_A <= `ADDR_WIDTH'b0;
                 /* init neighbor ram signals */
                 RAM_NBR_Di <= 32'b0;
                 RAM_NBR_EN <= 1'b1;
                 RAM_NBR_WE <= 4'b0;
-                RAM_NBR_A <= 9'b0;
+                RAM_NBR_A <= `ADDR_WIDTH'b0;
                 /* init result ram signals */
                 RAM_RES_Di <= 32'b0;
                 RAM_RES_EN <= 1'b1;
                 RAM_RES_WE <= 4'b1111;
-                RAM_RES_A <= 9'b0;
+                RAM_RES_A <= `ADDR_WIDTH'b0;
                 busy <= 1'b1;
                 state <= COPY;
             end

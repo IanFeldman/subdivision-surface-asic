@@ -69,7 +69,6 @@ end
  *       ...
  */
 
-/* RAM address width 9 bits */
 logic [31:0] curr_face, vertex_a, vertex_b, vertex_c;
 logic [1:0] i;
 
@@ -95,7 +94,7 @@ always_ff@(negedge clk) begin
                 RAM_NBR_Di <= 32'b0;
                 RAM_NBR_EN <= 1'b1;
                 RAM_NBR_WE <= 4'b1111;
-                RAM_NBR_A <= 9'b0;
+                RAM_NBR_A <= `ADDR_WIDTH'b0;
                 /* init various signals */
                 busy <= 1'b1;
                 i <= 2'b0;
@@ -165,7 +164,7 @@ always_ff@(negedge clk) begin
                     else begin
                         neighbor_idx = 4'b0;
                         /* set address of first neighbor */
-                        RAM_NBR_A <= neighbor_list_addr + {5'b0, neighbor_idx} + 1;
+                        RAM_NBR_A <= neighbor_list_addr + `ADDR_WIDTH'(neighbor_idx) + 1;
                         cv_state <= LOOP;
                     end
                 end
@@ -183,7 +182,7 @@ always_ff@(negedge clk) begin
                     /* move on to next neighbor */
                     else begin
                         neighbor_idx = neighbor_idx + 1;
-                        RAM_NBR_A <= neighbor_list_addr + {5'b0, neighbor_idx} + 1;
+                        RAM_NBR_A <= neighbor_list_addr + `ADDR_WIDTH'(neighbor_idx) + 1;
                     end
                 end
                 /* update state */
@@ -246,7 +245,7 @@ always_ff@(negedge clk) begin
                 end
                 SETUP_N_WRITE: begin
                     /* go to address of new neighbor */
-                    RAM_NBR_A <= neighbor_list_addr + {5'b0, neighbor_count};
+                    RAM_NBR_A <= neighbor_list_addr + `ADDR_WIDTH'(neighbor_count);
                     RAM_NBR_Di <= test_vertex;
                     in_state <= IN_DONE;
                 end
