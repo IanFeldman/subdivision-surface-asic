@@ -14,14 +14,12 @@ module averager #(parameter MAX_NEIGHBOR_COUNT=10)
     output logic busy
 );
 
-/* assume that RAM_OBJ = RAM_RES at the start */
-
-logic [31:0] curr_vertex, neighbor_count, neighbors_read;
+logic [(`ADDR_WIDTH - 1):0] address;
+logic [31:0] count, curr_vertex, neighbor_count, neighbors_read;
 logic signed [31:0] sum_x, sum_y, sum_z;
 logic signed [31:0] neighbor_count_q, neighbor_vertex_weight, curr_vertex_weight;
 logic [1:0] i;
 logic signed [63:0] product_64; /* for curr vertex weight multiplication */
-
 
 /* continuous assignments */
 assign neighbor_count_q = neighbor_count << 16;
@@ -29,7 +27,7 @@ assign neighbor_vertex_weight = (RAM_OBJ_Do >>> 2); /* beta = 4 */
 assign product_64 = $signed(RAM_OBJ_Do) * $signed(`Q_ONE - (neighbor_count_q >>> 2)); /* beta = 4 */
 assign curr_vertex_weight = product_64[47:16];
 
-enum {IDLE, GET_NEIGHBOR, READ_NEIGHBOR_VERTEX,
+enum {IDLE, COPY, GET_NEIGHBOR, READ_NEIGHBOR_VERTEX,
       READ_CURR_VERTEX, WRITE_CURR_VERTEX, DONE} state;
 
 `ifndef SYNTHESIS
@@ -37,6 +35,7 @@ logic [63:0] state_string;
 always_comb begin
     case (state)
         IDLE:                   state_string = "IDLE    ";
+        COPY:                   state_string = "COPY    ";
         GET_NEIGHBOR:           state_string = "GET_NBR ";
         READ_NEIGHBOR_VERTEX:   state_string = "RD_NBR_V";
         READ_CURR_VERTEX:       state_string = "RD_CUR_V";
@@ -73,6 +72,8 @@ always_ff@(negedge clk) begin
                 sum_x <= 32'b0;
                 sum_y <= 32'b0;
                 sum_z <= 32'b0;
+                address <= `ADDR_WIDTH'b0;
+                count <= 32'b0;
                 /* init object ram signals */
                 RAM_OBJ_Di <= 32'b0;
                 RAM_OBJ_EN <= 1'b1;
@@ -86,10 +87,32 @@ always_ff@(negedge clk) begin
                 /* init result ram signals */
                 RAM_RES_Di <= 32'b0;
                 RAM_RES_EN <= 1'b1;
-                RAM_RES_WE <= 4'b0;
+                RAM_RES_WE <= 4'b1111;
                 RAM_RES_A <= 9'b0;
                 busy <= 1'b1;
-                state <= GET_NEIGHBOR;
+                state <= COPY;
+            end
+        end
+        /* copy counts and faces from RAM_OBJ to RAM_RES */
+        COPY: begin
+            if (i == 2'b00) begin
+                RAM_RES_Di <= RAM_OBJ_Do;
+                RAM_OBJ_A <= vertex_count[(`ADDR_WIDTH - 1):0] * 3 + 1;
+                address <= vertex_count[(`ADDR_WIDTH - 1):0] * 3 + 1;
+                RAM_RES_A <= address;
+                count <= count + 1;
+                i <= i + 1;
+            end
+            else if (i == 2'b01) begin
+                RAM_RES_Di <= RAM_OBJ_Do;
+                RAM_OBJ_A <= RAM_OBJ_A + 1;
+                address <= address + 1;
+                RAM_RES_A <= address;
+                count <= count + 1;
+                if (count > face_count * 3) begin
+                    i <= 2'b00;
+                    state <= GET_NEIGHBOR;
+                end
             end
         end
         GET_NEIGHBOR: begin

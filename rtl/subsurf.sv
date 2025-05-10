@@ -13,20 +13,14 @@ module subsurf
 );
 
 logic [31:0] vertex_count, face_count;
-logic subdiv_start, copy_start, neighbor_start, averager_start;
-logic subdiv_busy, copy_busy, neighbor_busy, averager_busy;
+logic subdiv_start, neighbor_start, averager_start;
+logic subdiv_busy, neighbor_busy, averager_busy;
 
 /* subdiv RAM signals */
 logic en0_s, en1_s, en2_s;
 logic [8:0] a0_s, a1_s, a2_s;
 logic [3:0] we0_s, we1_s, we2_s;
 logic [31:0] di0_s, di1_s, di2_s;
-
-/* copy RAM signals */
-logic enX_c, enY_c;
-logic [8:0] aX_c, aY_c;
-logic [3:0] weX_c, weY_c;
-logic [31:0] diY_c, doX_c;
 
 /* neighbor RAM signals */
 logic en0_n, en1_n;
@@ -42,7 +36,7 @@ logic [31:0] di0_a, di1_a, di2_a;
 
 /* control signals */
 logic [1:0] i;
-enum {NONE, SUBDIV, COPY, NEIGHBOR, AVERAGER} in_use;
+enum {NONE, SUBDIV, NEIGHBOR, AVERAGER} in_use;
 
 /* debug state - simulation only */
 `ifndef SYNTHESIS
@@ -51,7 +45,6 @@ always_comb begin
     case (in_use)
         NONE:       state_string = "NONE    ";
         SUBDIV:     state_string = "SUBDIV  ";
-        COPY:       state_string = "COPY    ";
         NEIGHBOR:   state_string = "NEIGHBOR";
         AVERAGER:   state_string = "AVERAGER";
         default:    state_string = "UNKNOWN ";
@@ -60,6 +53,8 @@ end
 `endif
 
 /* instantiate modules */
+
+/* OBJ: 0, RES: 1, MAP: 2 */
 subdiv sbdv (
     .clk(clk),
     .start(subdiv_start),
@@ -83,20 +78,7 @@ subdiv sbdv (
     .new_face_count(face_count)
 );
 
-copy cpy(
-    .clk(clk),
-    .start(copy_start),
-    .RAM_X_Do(doX_c),
-    .RAM_X_EN(enX_c),
-    .RAM_Y_EN(enY_c),
-    .RAM_X_A(aX_c),
-    .RAM_Y_A(aY_c),
-    .RAM_X_WE(weX_c),
-    .RAM_Y_WE(weY_c),
-    .RAM_Y_Di(diY_c),
-    .busy(copy_busy)
-);
-
+/* OBJ: 1, NBR: 0 */
 neighbor nbr(
     .clk(clk),
     .start(neighbor_start),
@@ -115,6 +97,7 @@ neighbor nbr(
     .busy(neighbor_busy)
 );
 
+/* OBJ: 1, RES: 2, NBR: 0 */
 averager avgr(
     .clk(clk),
     .start(averager_start),
@@ -142,7 +125,6 @@ averager avgr(
 always_comb begin
     case (in_use)
         SUBDIV: begin
-            doX_c = 32'b0;
             en0 = en0_s;
             en1 = en1_s;
             en2 = en2_s;
@@ -156,23 +138,7 @@ always_comb begin
             di1 = di1_s;
             di2 = di2_s;
         end
-        COPY: begin /* copy ram1 to ram2 */
-            doX_c = do1;
-            en0 = 1'b0;
-            en1 = enX_c;
-            en2 = enY_c;
-            a0 = 9'b0;
-            a1 = aX_c;
-            a2 = aY_c;
-            we0 = 4'b0;
-            we1 = weX_c;
-            we2 = weY_c;
-            di0 = 32'b0;
-            di1 = 32'b0;
-            di2 = diY_c;
-        end
         NEIGHBOR: begin
-            doX_c = 32'b0;
             en0 = en0_n;
             en1 = en1_n;
             en2 = 1'b0;
@@ -187,7 +153,6 @@ always_comb begin
             di2 = 32'b0;
         end
         AVERAGER: begin
-            doX_c = 32'b0;
             en0 = en0_a;
             en1 = en1_a;
             en2 = en2_a;
@@ -202,7 +167,6 @@ always_comb begin
             di2 = di2_a;
         end
         default: begin
-            doX_c = 32'b0;
             en0 = 1'b0;
             en1 = 1'b0;
             en2 = 1'b0;
@@ -241,24 +205,6 @@ always_ff@(posedge clk) begin
             end
             else if (i == 2'b11) begin
                 if (subdiv_busy == 1'b0) begin
-                    i <= 2'b00;
-                    in_use <= COPY;
-                end
-            end
-        end
-        COPY: begin
-            if (i == 2'b00) begin
-                copy_start <= 1'b1;
-                i <= i + 1;
-            end
-            else if (i == 2'b01)
-                i <= i + 1;
-            else if (i == 2'b10) begin
-                copy_start <= 1'b0;
-                i <= i + 1;
-            end
-            else if (i == 2'b11) begin
-                if (copy_busy == 1'b0) begin
                     i <= 2'b00;
                     in_use <= NEIGHBOR;
                 end
