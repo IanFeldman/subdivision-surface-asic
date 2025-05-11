@@ -239,8 +239,10 @@ always_ff@(posedge clk) begin
                 i <= i + 1;
             end
             else if (i == 2'b11) begin
-                if (averager_busy == 1'b0)
+                if (averager_busy == 1'b0) begin
                     in_use <= NONE;
+                    busy <= 0;
+                end
             end
         end
     endcase

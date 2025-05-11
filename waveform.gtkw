@@ -1,15 +1,15 @@
 [*]
 [*] GTKWave Analyzer v3.4.0 (w)1999-2022 BSI
-[*] Fri May  9 22:02:02 2025
+[*] Sun May 11 09:24:30 2025
 [*]
 [dumpfile] "/home/asic/workspace/subdivision-surface-asic/tests/tb_subsurf/tb_subsurf.vcd"
-[dumpfile_mtime] "Fri May  9 21:44:40 2025"
-[dumpfile_size] 4417295
+[dumpfile_mtime] "Sun May 11 09:24:02 2025"
+[dumpfile_size] 4528754
 [savefile] "/home/asic/workspace/subdivision-surface-asic/waveform.gtkw"
-[timestart] 0
+[timestart] 47250000
 [size] 1904 1039
-[pos] -1 -1
-*-23.699999 14745300 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+[pos] -958 -1
+*-23.699999 63870000 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
 [markername] AA
 [markername] BB
 [markername] CC
@@ -41,12 +41,14 @@
 [sst_width] 276
 [signals_width] 223
 [sst_expanded] 1
-[sst_vpaned_height] 259
+[sst_vpaned_height] 595
 @200
 -TOP
 @28
 tb_subsurf.clk
 tb_subsurf.top.start
+@29
+tb_subsurf.top.busy
 @820
 tb_subsurf.top.state_string[63:0]
 @28
@@ -73,9 +75,7 @@ tb_subsurf.top.sbdv.e1[31:0]
 tb_subsurf.top.sbdv.e2[31:0]
 tb_subsurf.top.sbdv.em[31:0]
 tb_subsurf.top.sbdv.RAM2_A[8:0]
-@23
 tb_subsurf.top.sbdv.RAM2_Di[31:0]
-@22
 tb_subsurf.top.sbdv.RAM2_WE[3:0]
 @200
 -
