@@ -1,4 +1,5 @@
 `timescale 1ns/1ps
+
 `define ADDR_WIDTH 9
 `define Q_ONE 32'h00010000
 
@@ -6,7 +7,7 @@ module averager #(parameter MAX_NEIGHBOR_COUNT=10)
 (
     input clk, start,
     input [31:0] vertex_count, face_count,
-    input signed [31:0] RAM_OBJ_Do, RAM_NBR_Do, RAM_RES_Do,
+    input signed [31:0] RAM_OBJ_Do, RAM_NBR_Do,
     output logic RAM_OBJ_EN, RAM_NBR_EN, RAM_RES_EN,
     output logic [(`ADDR_WIDTH - 1):0] RAM_OBJ_A, RAM_NBR_A, RAM_RES_A,
     output logic [3:0] RAM_OBJ_WE, RAM_NBR_WE, RAM_RES_WE,
