@@ -4,7 +4,7 @@ module subdiv (
     input clk, start,
     input [31:0] RAM0_Do, RAM2_Do,
     output logic RAM0_EN, RAM1_EN, RAM2_EN,
-    output logic [8:0] RAM0_A, RAM1_A, RAM2_A,
+    output logic [10:0] RAM0_A, RAM1_A, RAM2_A,
     output logic [3:0] RAM0_WE, RAM1_WE, RAM2_WE,
     output logic [31:0] RAM0_Di, RAM1_Di, RAM2_Di,
     output logic [31:0] new_vertex_count, new_face_count,
@@ -17,7 +17,7 @@ enum {FIND1, FIND2, FIND3, WRITE} edge_map_state;
 
 /* rip variable names */
 logic [31:0] vertex_count, face_count;
-logic [8:0] edge_count, curr_face;
+logic [10:0] edge_count, curr_face;
 logic [31:0] new_vertex;
 logic [31:0] va, vb, vc;
 logic [31:0] ma, mb, mc;
@@ -116,17 +116,17 @@ always_ff @(negedge clk) begin
             RAM0_Di <= 32'b0;
             RAM0_EN <= 1'b1;
             RAM0_WE <= 4'b0;
-            RAM0_A <= 9'b0;
+            RAM0_A <= 11'b0;
 
             RAM1_Di <= 32'b0;
             RAM1_EN <= 1'b1;
             RAM1_WE <= 4'b0;
-            RAM1_A <= 9'b0;
+            RAM1_A <= 11'b0;
 
             RAM2_Di <= 32'b0;
             RAM2_EN <= 1'b1;
             RAM2_WE <= 4'b0;
-            RAM2_A <= 9'b0;
+            RAM2_A <= 11'b0;
 
             if (start == 1'b1) begin
                 busy <= 1;
@@ -137,7 +137,7 @@ always_ff @(negedge clk) begin
             vertex_count <= RAM0_Do;
             /* new vertex starts after old vertices */
             new_vertex <= RAM0_Do + 1;
-            RAM0_A <= 1 + RAM0_Do[8:0] * 3;
+            RAM0_A <= 1 + RAM0_Do[10:0] * 3;
 
             /* Initialize map with null ptr */
             RAM2_WE <= 4'b1111;
@@ -146,7 +146,7 @@ always_ff @(negedge clk) begin
         end
         F_COUNT: begin
             face_count <= RAM0_Do;
-            edge_count <= RAM0_Do[8:0] + vertex_count[8:0] - 2;
+            edge_count <= RAM0_Do[10:0] + vertex_count[10:0] - 2;
 
             RAM0_A <= RAM0_A + 1;
             i <= 0;
@@ -162,13 +162,13 @@ always_ff @(negedge clk) begin
         end
         WR_CNT: begin
             /* Write out new face count */
-            RAM1_A <= (1 + (vertex_count[8:0] + edge_count) * 3);
+            RAM1_A <= (1 + (vertex_count[10:0] + edge_count) * 3);
             RAM1_Di <= face_count << 2;
             state <= READ_FACE;
         end
         READ_FACE: begin
             RAM1_WE <= 4'b0;
-            if (curr_face == face_count[8:0]) begin
+            if (curr_face == face_count[10:0]) begin
                 RAM0_A <= 1;
                 RAM1_A <= 0;
                 state <= WR_ORIG;
@@ -197,7 +197,7 @@ always_ff @(negedge clk) begin
                         i <= 0;
                         em <= new_vertex;
                         new_vertex <= new_vertex + 1;
-                        RAM0_A <= 1 + (e1[8:0] - 1) * 3;
+                        RAM0_A <= 1 + (e1[10:0] - 1) * 3;
                         found <= 0;
                         edge_map_state <= WRITE;
                     end else if (RAM2_Do == e1 || RAM2_Do == e2) begin
@@ -219,7 +219,7 @@ always_ff @(negedge clk) begin
                     em <= RAM2_Do;
                     RAM2_A <= RAM2_A - 2;
                     i <= 0;
-                    RAM0_A <= 1 + (e1[8:0] - 1) * 3;
+                    RAM0_A <= 1 + (e1[10:0] - 1) * 3;
                     found <= 1;
                     edge_map_state <= WRITE;
                 end
@@ -246,7 +246,7 @@ always_ff @(negedge clk) begin
                         RAM2_A <= RAM2_A + 1;
 
                         z1 <= RAM0_Do;
-                        RAM0_A <= 1 + (e2[8:0] - 1) * 3;
+                        RAM0_A <= 1 + (e2[10:0] - 1) * 3;
                     end else if (i == 3) begin
                         if (found)
                             RAM2_WE <= 0;
@@ -261,7 +261,7 @@ always_ff @(negedge clk) begin
                         y2 <= RAM0_Do;
                         RAM0_A <= RAM0_A + 1;
 
-                        RAM1_A <= 1 + (em[8:0] - 1) * 3;
+                        RAM1_A <= 1 + (em[10:0] - 1) * 3;
                         RAM1_WE <= 4'b1111;
                         RAM1_Di <= xm;
                     end else if (i == 5) begin
@@ -295,7 +295,7 @@ always_ff @(negedge clk) begin
             end else begin
                 i <= 0;
                 e <= 0;
-                RAM1_A <= 1 + (vertex_count[8:0] + edge_count + (curr_face << 2)) * 3;
+                RAM1_A <= 1 + (vertex_count[10:0] + edge_count + (curr_face << 2)) * 3;
                 state <= FIN_FACE;
             end
         end
@@ -321,7 +321,7 @@ always_ff @(negedge clk) begin
         end
         LOOP_BACK: begin
             RAM1_WE <= 0;
-            RAM0_A <= 2 + vertex_count[8:0] * 3 + (curr_face + 1) * 3;
+            RAM0_A <= 2 + vertex_count[10:0] * 3 + (curr_face + 1) * 3;
             RAM2_A <= 0;
             i <= 0;
             e <= 0;
@@ -330,7 +330,7 @@ always_ff @(negedge clk) begin
             state <= READ_FACE;
         end
         WR_ORIG: begin
-            if (RAM1_A > vertex_count[8:0] * 3 - 1) begin
+            if (RAM1_A > vertex_count[10:0] * 3 - 1) begin
                 state <= DONE;
                 RAM1_WE <= 0;
             end else begin

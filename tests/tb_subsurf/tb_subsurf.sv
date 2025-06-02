@@ -1,5 +1,5 @@
 `timescale 1ns/1ps
-`define ADDR_WIDTH 9
+`define ADDR_WIDTH 11
 
 module tb_subsurf;
 
@@ -13,34 +13,34 @@ logic write0, write1, write2;
 
 logic start, busy;
 
-DFFRAM512x32 ram0 (
-    .CLK(clk),
-    .WE0(we0),
-    .EN0(en0),
-    .Di0(di0),
-    .Do0(do0),
-    .A0(a0),
-    .write(write0)
+quadram_sim ram0 (
+    .clk(clk),
+    .we(we0),
+    .en(en0),
+    .din(di0),
+    .dout(do0),
+    .addr(a0),
+    .wr(write0)
 );
 
-DFFRAM512x32 ram1 (
-    .CLK(clk),
-    .WE0(we1),
-    .EN0(en1),
-    .Di0(di1),
-    .Do0(do1),
-    .A0(a1),
-    .write(write1)
+quadram_sim ram1 (
+    .clk(clk),
+    .we(we1),
+    .en(en1),
+    .din(di1),
+    .dout(do1),
+    .addr(a1),
+    .wr(write1)
 );
 
-DFFRAM512x32 ram2 (
-    .CLK(clk),
-    .WE0(we2),
-    .EN0(en2),
-    .Di0(di2),
-    .Do0(do2),
-    .A0(a2),
-    .write(write2)
+quadram_sim ram2 (
+    .clk(clk),
+    .we(we2),
+    .en(en2),
+    .din(di2),
+    .dout(do2),
+    .addr(a2),
+    .wr(write2)
 );
 
 subsurf top (

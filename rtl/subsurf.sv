@@ -1,5 +1,5 @@
 `timescale 1ns/1ps
-`define ADDR_WIDTH 9
+`define ADDR_WIDTH 11
 
 /* top module */
 module subsurf

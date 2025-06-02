@@ -1,6 +1,6 @@
 `timescale 1ns/1ps
 
-`define ADDR_WIDTH 9
+`define ADDR_WIDTH 11
 `define Q_ONE 32'h00010000
 
 module averager #(parameter MAX_NEIGHBOR_COUNT=10)

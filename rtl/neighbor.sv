@@ -1,5 +1,5 @@
 `timescale 1ns/1ps
-`define ADDR_WIDTH 9
+`define ADDR_WIDTH 11
 
 /* RAM_OBJ is obj input, RAM_NBR is neighbors output */
 module neighbor #(parameter MAX_NEIGHBOR_COUNT=10)
