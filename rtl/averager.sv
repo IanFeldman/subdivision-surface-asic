@@ -2,6 +2,7 @@
 
 `define ADDR_WIDTH 11
 `define Q_ONE 32'h00010000
+`define BETA_SHIFT 3
 
 module averager #(parameter MAX_NEIGHBOR_COUNT=10)
 (
@@ -24,8 +25,8 @@ logic signed [63:0] product_64; /* for curr vertex weight multiplication */
 
 /* continuous assignments */
 assign neighbor_count_q = neighbor_count << 16;
-assign neighbor_vertex_weight = (RAM_OBJ_Do >>> 2); /* beta = 4 */
-assign product_64 = $signed(RAM_OBJ_Do) * $signed(`Q_ONE - (neighbor_count_q >>> 2)); /* beta = 4 */
+assign neighbor_vertex_weight = (RAM_OBJ_Do >>> `BETA_SHIFT);
+assign product_64 = $signed(RAM_OBJ_Do) * $signed(`Q_ONE - (neighbor_count_q >>> `BETA_SHIFT));
 assign curr_vertex_weight = product_64[47:16];
 
 enum {IDLE, COPY, GET_NEIGHBOR, READ_NEIGHBOR_VERTEX,
