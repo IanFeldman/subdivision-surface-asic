@@ -1,12 +1,140 @@
 {
-    "DESIGN_NAME": "subsurf",
-    "VERILOG_FILES": "dir::rtl/*.sv",
+    "DESIGN_NAME": "top",
+    "VERILOG_FILES": [
+        "rtl/top.sv",
+        "rtl/subsurf.sv",
+        "rtl/subdiv.sv",
+        "rtl/neighbor.sv",
+        "rtl/averager.sv",
+        "rtl/quadram.sv",
+        "rtl/DFFRAM512x32.v"
+    ],
     "CLOCK_PERIOD": 100,
     "CLOCK_PORT": "clk",
-    "FP_PDN_VOFFSET": 7,
-    "FP_PDN_HOFFSET": 7,
     "FP_PDN_SKIPTRIM": true,
     "RUN_POST_GRT_RESIZER_TIMING": true,
+    "SYNTH_AUTONAME": true,
+
+    "FP_SIZING": "absolute",
+    "DIE_AREA": [0, 0, 3000, 6700],
+
+    "VERILOG_DEFINES": ["OPENLANE"],
+
+    "VDD_NETS": [ "VPWR" ],
+    "GND_NETS": [ "VGND" ],
+
+    "PDN_MACRO_CONNECTIONS": [
+        "ram0 VPWR VGND VPWR VGND",
+        "ram1 VPWR VGND VPWR VGND"
+    ],
+
+    "MACROS": {
+        "DFFRAM512x32": {
+            "instances": {
+                "ram0.ram0": {
+                    "location": [100, 100],
+                    "orientation": "N"
+                },
+                "ram0.ram1": {
+                    "location": [100, 1200],
+                    "orientation": "N"
+                },
+                "ram0.ram2": {
+                    "location": [100, 2300],
+                    "orientation": "N"
+                },
+                "ram0.ram3": {
+                    "location": [100, 3400],
+                    "orientation": "N"
+                },
+                "ram1.ram0": {
+                    "location": [100, 4500],
+                    "orientation": "N"
+                },
+                "ram1.ram1": {
+                    "location": [100, 5600],
+                    "orientation": "N"
+                },
+                "ram1.ram2": {
+                    "location": [1500, 100],
+                    "orientation": "FN"
+                },
+                "ram1.ram3": {
+                    "location": [1500, 1200],
+                    "orientation": "FN"
+                },
+                "ram2.ram0": {
+                    "location": [1500, 2300],
+                    "orientation": "FN"
+                },
+                "ram2.ram1": {
+                    "location": [1500, 3400],
+                    "orientation": "FN"
+                },
+                "ram2.ram2": {
+                    "location": [1500, 4500],
+                    "orientation": "FN"
+                },
+                "ram2.ram3": {
+                    "location": [1500, 5600],
+                    "orientation": "FN"
+                }
+            },
+            "gds": [
+                "dir::macros/dffram512x32/layout/gds/DFFRAM512x32.gds.gz"
+            ],
+            "lef": [
+                "dir::macros/dffram512x32/layout/lef/DFFRAM512x32.lef"
+            ],
+            "nl": [
+                "dir::macros/dffram512x32/hdl/gl/DFFRAM512x32.v"
+            ],
+            "pnl": [
+              "dir::macros/dffram512x32/hdl/gl/DFFRAM512x32.v"
+            ],
+            "spef": {
+                "max*": [
+                  "dir::macros/dffram512x32/timing/spef/DFFRAM512x32.max.spef"
+                ],
+                "min*": [
+                  "dir::macros/dffram512x32/timing/spef/DFFRAM512x32.min.spef"
+                ],
+                "nom*": [
+                  "dir::macros/dffram512x32/timing/spef/DFFRAM512x32.nom.spef"
+                ]
+            },
+            "lib": {
+		"max_ff*": "dir::macros/dffram512x32/timing/lib/max/DFFRAM512x32.Fastest.lib",
+                "max_tt*": "dir::macros/dffram512x32/timing/lib/max/DFFRAM512x32.Typical.lib",
+                "max_ss*": "dir::macros/dffram512x32/timing/lib/max/DFFRAM512x32.Slowest.lib",
+                "min_ff*": "dir::macros/dffram512x32/timing/lib/min/DFFRAM512x32.Fastest.lib",
+                "min_tt*": "dir::macros/dffram512x32/timing/lib/min/DFFRAM512x32.Typical.lib",
+                "min_ss*": "dir::macros/dffram512x32/timing/lib/min/DFFRAM512x32.Slowest.lib",
+                "nom_ff*": "dir::macros/dffram512x32/timing/lib/nom/DFFRAM512x32.Fastest.lib",
+                "nom_tt*": "dir::macros/dffram512x32/timing/lib/nom/DFFRAM512x32.Typical.lib",
+                "nom_ss*": "dir::macros/dffram512x32/timing/lib/nom/DFFRAM512x32.Slowest.lib"
+            }
+        }
+    },
+
+    "FP_PDN_VOFFSET": 5,
+    "FP_PDN_HOFFSET": 5,
+    "FP_PDN_VWIDTH": 3.1,
+    "FP_PDN_HWIDTH": 3.1,
+    "FP_PDN_VSPACING": 15.5,
+    "FP_PDN_HSPACING": 15.5,
+    "FP_PDN_VPITCH": 100,
+    "FP_PDN_HPITCH": 100,
+
+    "PL_RESIZER_ALLOW_SETUP_VIOS": true,
+    "GRT_RESIZER_ALLOW_SETUP_VIOS": true,
+    "GRT_ANTENNA_ITERS": 15,
+    "GRT_ANTENNA_MARGIN": 15,
+    "RUN_HEURISTIC_DIODE_INSERTION": true,
+    "DESIGN_REPAIR_MAX_WIRE_LENGTH": 800,
+    "PL_WIRE_LENGTH_COEF": 0.05,
     "RUN_POST_GRT_DESIGN_REPAIR": true,
-    "SYNTH_AUTONAME": true
+    "DESIGN_REPAIR_MAX_SLEW_PCT": 30,
+    "DESIGN_REPAIR_MAX_CAP_PCT": 30,
+    "MAX_TRANSITION_CONSTRAINT": 1.5
 }

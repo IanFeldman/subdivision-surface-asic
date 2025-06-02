@@ -40,7 +40,7 @@ logic [1:0] i;
 enum {NONE, SUBDIV, NEIGHBOR, AVERAGER} in_use;
 
 /* debug state - simulation only */
-`ifndef SYNTHESIS
+`ifndef OPENLANE
 logic [63:0] state_string;
 always_comb begin
     case (in_use)
@@ -182,7 +182,7 @@ always_comb begin
     endcase
 end
 
-always_ff@(posedge clk) begin
+always_ff @(posedge clk) begin
     case (in_use)
         NONE: begin
             if (start == 1'b1) begin

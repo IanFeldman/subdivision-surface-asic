@@ -33,7 +33,7 @@ logic found;
 assign new_vertex_count = new_vertex - 1;
 assign new_face_count = face_count * 4;
 
-`ifndef SYNTHESIS
+`ifndef OPENLANE
 logic [63:0] state_string;
 always_comb begin
     case (state)

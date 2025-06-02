@@ -1,0 +1,32 @@
+{
+    "info": {
+        "name": "DFFRAM512x32",
+        "description": "2kbytes (512x32) DFFRAM hardened using OpenLane",
+        "repo": "",
+        "owner": "AUCOHL",
+        "license": "Apache 2.0",
+        "author": "",
+        "email": "",
+        "version": "",
+        "date": "",
+        "category": "digital",
+        "tags": [
+            "SRAM",
+            "DFFRAM",
+            "memory"
+        ],
+        "bus": [
+            "AHBL"
+        ],
+        "type": "hard",
+        "status": "",
+        "cell_count": "0",
+        "width": "1186.960",
+        "height": "1021.295",
+        "technology": "sky130",
+        "clock_freq_mhz": "40",
+        "supply_voltage": [
+            "1.8"
+        ]
+    }
+}

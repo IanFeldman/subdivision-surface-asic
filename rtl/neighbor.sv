@@ -19,7 +19,7 @@ enum {SETUP_NCOUNT, SETUP_LOOP, LOOP, CV_DONE} cv_state;
 enum {SETUP_NCOUNT_WRITE, SETUP_N_WRITE, IN_DONE} in_state;
 
 /* debug state - simulation only */
-`ifndef SYNTHESIS
+`ifndef OPENLANE
 logic [63:0] state_string, cv_state_string, in_state_string;
 always_comb begin
     case (state)

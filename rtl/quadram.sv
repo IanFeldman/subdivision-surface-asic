@@ -6,7 +6,7 @@
 
 module quadram /* synthable */
 (
-    input clk, en, wr,
+    input clk, en,
     input [3:0] we,
     input [31:0] din,
     input [(`ADDR_WIDTH - 1):0] addr,
@@ -29,8 +29,7 @@ DFFRAM512x32 ram0 (
     .EN0(en0),
     .Di0(din),
     .Do0(dout0),
-    .A0(addr_ram),
-    .write(wr)
+    .A0(addr_ram)
 );
 
 DFFRAM512x32 ram1 (
@@ -39,8 +38,7 @@ DFFRAM512x32 ram1 (
     .EN0(en1),
     .Di0(din),
     .Do0(dout1),
-    .A0(addr_ram),
-    .write(wr)
+    .A0(addr_ram)
 );
 
 DFFRAM512x32 ram2 (
@@ -49,8 +47,7 @@ DFFRAM512x32 ram2 (
     .EN0(en2),
     .Di0(din),
     .Do0(dout2),
-    .A0(addr_ram),
-    .write(wr)
+    .A0(addr_ram)
 );
 
 DFFRAM512x32 ram3 (
@@ -59,8 +56,7 @@ DFFRAM512x32 ram3 (
     .EN0(en3),
     .Di0(din),
     .Do0(dout3),
-    .A0(addr_ram),
-    .write(wr)
+    .A0(addr_ram)
 );
 
 always_comb begin

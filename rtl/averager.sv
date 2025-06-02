@@ -32,7 +32,7 @@ assign curr_vertex_weight = product_64[47:16];
 enum {IDLE, COPY, GET_NEIGHBOR, READ_NEIGHBOR_VERTEX,
       READ_CURR_VERTEX, WRITE_CURR_VERTEX, DONE} state;
 
-`ifndef SYNTHESIS
+`ifndef OPENLANE
 logic [63:0] state_string;
 always_comb begin
     case (state)
@@ -60,7 +60,7 @@ end
  *    Save sum_x, sum_y, sum_z into result ram
  */
 
-always_ff@(negedge clk) begin
+always_ff @(negedge clk) begin
     case (state)
         IDLE: begin
             busy <= 1'b0;

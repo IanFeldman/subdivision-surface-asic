@@ -1,0 +1,10 @@
+{ signal: [
+    { name: "clk",         wave: "p.......", period: 2 },
+    { name: "EN0",         wave: "01...0..", period: 2 },
+    { name: "A0",        wave: "x3456x..", data: ["A", "B", "C", "C"], period: 2 },
+    { name: "WE0",     wave: "x3456x..",  data: ["0xF", "0XF", "0x0", "0x0"], period: 2 },
+    { name: "Di0",     wave: "x34x....",  data: ["A", "0XF", "0x0", "0x0"] , period: 2},
+    { name: "Do0",     wave: "2..34562.", data: ["0x00000000","A", "B", "C", "D", "0x00000000"] , period: 2, phase: 1.8},
+    { name: "Operation",     wave: "977779..", data: ["Disabled","Write", "Write", "Read", "Read", "Disabled"] , period: 2, phase: 0},
+  ]}
+  
