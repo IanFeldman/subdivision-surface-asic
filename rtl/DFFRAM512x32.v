@@ -45,10 +45,10 @@ module DFFRAM512x32  (
        
        reg [31:0] RAM[(NUM_WORDS-1): 0];
 
-       initial $readmemh("icosahedron.hex", RAM);
+       initial $readmemh("input.hex", RAM);
    
        always @(posedge CLK) begin
-           if (write == 1'b1) begin $writememh("hi", RAM); end
+           if (write == 1'b1) begin $writememh("output.hex", RAM); end
            if(EN0) begin
                Do0 <= RAM[A0];
                if(WE0[0]) RAM[A0][ 7: 0] <= Di0[7:0];
