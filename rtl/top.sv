@@ -3,7 +3,7 @@
 
 module top
 (
-    input clk, sck_in, reset, ss_in, mosi,
+    input clk, sck_in, reset, spi_en, ss_in, mosi,
     output logic miso
 );
 
@@ -21,7 +21,7 @@ logic [(`ADDR_WIDTH - 1):0] a0, a1, a2;
 logic [(`ADDR_WIDTH - 1):0] ram0_addr, ram1_addr;
 
 /* spi logic */
-logic spi_en, spi_done;
+logic spi_done;
 logic [31:0] spi_data, word_buffer_in, word_buffer_out;
 logic [(`ADDR_WIDTH - 1):0] obj_address;
 

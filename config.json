@@ -7,6 +7,7 @@
         "rtl/neighbor.sv",
         "rtl/averager.sv",
         "rtl/quadram.sv",
+        "rtl/spi_slave.v",
         "rtl/DFFRAM512x32.v"
     ],
     "CLOCK_PERIOD": 100,

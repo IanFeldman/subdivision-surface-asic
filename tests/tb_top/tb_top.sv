@@ -5,7 +5,7 @@ module tb_top;
 
 /* testing signals */
 logic clk, reset;
-logic spi_start, spi_done, mosi, miso, sck, ss;
+logic spi_start, spi_done, spi_en, mosi, miso, sck, ss;
 logic [31:0] spi_data;
 
 /* data array - size of one quadram */
@@ -19,6 +19,7 @@ logic [31:0] vertex_count, face_count, word_count;
 top top (
     .clk(clk),
     .reset(reset),
+    .spi_en(spi_en),
     .sck_in(sck),
     .ss_in(ss),
     .mosi(mosi),
@@ -63,8 +64,10 @@ initial begin
     /* reset */
     clk = 1;
     reset = 1;
+    spi_en = 0;
     #CLK_PERIOD
     reset = 0;
+    spi_en = 1;
 
     /* start spi transaction */
     spi_start = 1'b1;

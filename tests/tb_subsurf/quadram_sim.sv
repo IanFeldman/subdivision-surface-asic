@@ -38,4 +38,3 @@ module quadram_sim (
                dout <= 32'b0;
        end
 endmodule
-

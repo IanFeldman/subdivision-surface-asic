@@ -1,0 +1,109 @@
+[*]
+[*] GTKWave Analyzer v3.4.0 (w)1999-2022 BSI
+[*] Sun May 11 09:24:30 2025
+[*]
+[dumpfile] "/home/asic/workspace/subdivision-surface-asic/tests/tb_subsurf/tb_subsurf.vcd"
+[dumpfile_mtime] "Sun May 11 09:24:02 2025"
+[dumpfile_size] 4528754
+[savefile] "/home/asic/workspace/subdivision-surface-asic/tests/tb_subsurf/waveform.gtkw"
+[timestart] 47250000
+[size] 1904 1039
+[pos] -958 -1
+*-23.699999 63870000 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+[markername] AA
+[markername] BB
+[markername] CC
+[markername] DD
+[markername] EE
+[markername] FF
+[markername] GG
+[markername] HH
+[markername] II
+[markername] JJ
+[markername] KK
+[markername] LL
+[markername] MM
+[markername] NN
+[markername] OO
+[markername] PP
+[markername] QQ
+[markername] RR
+[markername] SS
+[markername] TT
+[markername] UU
+[markername] VV
+[markername] WW
+[markername] XX
+[markername] YY
+[markername] ZZ
+[treeopen] tb_subsurf.
+[treeopen] tb_subsurf.subsurf.
+[sst_width] 276
+[signals_width] 223
+[sst_expanded] 1
+[sst_vpaned_height] 595
+@200
+-TOP
+@28
+tb_subsurf.clk
+tb_subsurf.subsurf.start
+@29
+tb_subsurf.subsurf.busy
+@820
+tb_subsurf.subsurf.state_string[63:0]
+@28
+tb_subsurf.subsurf.en0
+@22
+tb_subsurf.subsurf.do0[31:0]
+tb_subsurf.subsurf.do1[31:0]
+@28
+tb_subsurf.subsurf.i[1:0]
+@200
+-
+-SUBDIVIDER
+@22
+tb_subsurf.subsurf.sbdv.new_vertex_count[31:0]
+tb_subsurf.subsurf.sbdv.new_face_count[31:0]
+tb_subsurf.subsurf.sbdv.va[31:0]
+tb_subsurf.subsurf.sbdv.vb[31:0]
+tb_subsurf.subsurf.sbdv.vc[31:0]
+@820
+tb_subsurf.subsurf.sbdv.state_string[63:0]
+tb_subsurf.subsurf.sbdv.map_state_string[63:0]
+@22
+tb_subsurf.subsurf.sbdv.e1[31:0]
+tb_subsurf.subsurf.sbdv.e2[31:0]
+tb_subsurf.subsurf.sbdv.em[31:0]
+tb_subsurf.subsurf.sbdv.RAM2_A[8:0]
+tb_subsurf.subsurf.sbdv.RAM2_Di[31:0]
+tb_subsurf.subsurf.sbdv.RAM2_WE[3:0]
+@200
+-
+-NEIGHBOR
+@820
+tb_subsurf.subsurf.nbr.state_string[63:0]
+@28
+tb_subsurf.subsurf.nbr.busy
+tb_subsurf.subsurf.nbr.start
+@22
+tb_subsurf.subsurf.nbr.vertex_a[31:0]
+tb_subsurf.subsurf.nbr.vertex_b[31:0]
+tb_subsurf.subsurf.nbr.vertex_c[31:0]
+tb_subsurf.subsurf.nbr.RAM_OBJ_A[8:0]
+tb_subsurf.subsurf.nbr.RAM_OBJ_Do[31:0]
+@28
+tb_subsurf.subsurf.nbr.i[1:0]
+@200
+-
+-AVERAGER
+@820
+tb_subsurf.subsurf.avgr.state_string[63:0]
+@22
+tb_subsurf.subsurf.avgr.neighbor_count[31:0]
+tb_subsurf.subsurf.avgr.neighbors_read[31:0]
+@24
+tb_subsurf.subsurf.avgr.sum_x[31:0]
+tb_subsurf.subsurf.avgr.sum_y[31:0]
+tb_subsurf.subsurf.avgr.sum_z[31:0]
+[pattern_trace] 1
+[pattern_trace] 0

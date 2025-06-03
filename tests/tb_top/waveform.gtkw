@@ -1,14 +1,14 @@
 [*]
 [*] GTKWave Analyzer v3.4.0 (w)1999-2022 BSI
-[*] Tue Jun  3 21:04:43 2025
+[*] Tue Jun  3 22:16:47 2025
 [*]
 [dumpfile] "/home/asic/workspace/subdivision-surface-asic/tests/tb_top/tb_top.vcd"
-[dumpfile_mtime] "Tue Jun  3 21:04:00 2025"
-[dumpfile_size] 25453289
-[savefile] "/home/asic/workspace/subdivision-surface-asic/tb_top_waveform.gtkw"
-[timestart] 17900000
-[size] 1680 948
-[pos] -1 -1
+[dumpfile_mtime] "Tue Jun  3 07:55:10 2025"
+[dumpfile_size] 19550
+[savefile] "/home/asic/workspace/subdivision-surface-asic/tests/tb_top/waveform.gtkw"
+[timestart] 0
+[size] 1904 1039
+[pos] -958 -1
 *-27.000000 406200000 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
 [markername] AA
 [markername] BB
@@ -42,27 +42,16 @@
 [sst_width] 276
 [signals_width] 231
 [sst_expanded] 1
-[sst_vpaned_height] 271
+[sst_vpaned_height] 595
 @28
 tb_top.clk
 tb_top.reset
-@22
-tb_top.vertex_count[31:0]
-tb_top.face_count[31:0]
-tb_top.word_count[31:0]
 @200
 -
 -SPI
 @28
-tb_top.spi.rstb
-tb_top.sck
 tb_top.miso
 tb_top.mosi
-tb_top.ss
-tb_top.spi_done
-tb_top.spi_start
-@22
-tb_top.spi_data[31:0]
 @200
 -
 -TOP

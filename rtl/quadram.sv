@@ -2,8 +2,6 @@
 `define ADDR_WIDTH 11
 `define ADDR_WIDTH_RAM 9 
 
-/* TODO: write signal */
-
 module quadram /* synthable */
 (
     input clk, en,
@@ -67,19 +65,19 @@ always_comb begin
     dout = 32'hDEADBEEF;
     case (ram_sel)
         2'b00: begin
-            en0 = 1'b1;
+            en0 = en;
             dout = dout0;
         end
         2'b01: begin
-            en1 = 1'b1;
+            en1 = en;
             dout = dout1;
         end
         2'b10: begin
-            en2 = 1'b1;
+            en2 = en;
             dout = dout2;
         end
         2'b11: begin
-            en3 = 1'b1;
+            en3 = en;
             dout = dout3;
         end
     endcase
