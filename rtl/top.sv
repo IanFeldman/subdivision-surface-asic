@@ -57,7 +57,7 @@ quadram ram2 (
 );
 
 spi_slave spi (
-    .rstb(reset),
+    .rstb(~reset),
     .ten(spi_en),
     .ss(ss_in),
     .sck(sck_in),

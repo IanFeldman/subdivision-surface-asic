@@ -1,15 +1,15 @@
 [*]
 [*] GTKWave Analyzer v3.4.0 (w)1999-2022 BSI
-[*] Tue Jun  3 20:53:52 2025
+[*] Tue Jun  3 21:04:43 2025
 [*]
 [dumpfile] "/home/asic/workspace/subdivision-surface-asic/tests/tb_top/tb_top.vcd"
-[dumpfile_mtime] "Tue Jun  3 20:53:20 2025"
-[dumpfile_size] 2345784
+[dumpfile_mtime] "Tue Jun  3 21:04:00 2025"
+[dumpfile_size] 25453289
 [savefile] "/home/asic/workspace/subdivision-surface-asic/tb_top_waveform.gtkw"
-[timestart] 0
+[timestart] 17900000
 [size] 1680 948
 [pos] -1 -1
-*-20.000000 78000 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+*-27.000000 406200000 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
 [markername] AA
 [markername] BB
 [markername] CC
@@ -73,15 +73,17 @@ tb_top.top.subsurf_start
 tb_top.top.busy
 @22
 tb_top.top.spi_data[31:0]
+@28
+tb_top.top.spi_done
 @200
 -
 -SUBSURF
 @28
-tb_top.top.subsurf.averager_start
-tb_top.top.subsurf.averager_busy
-tb_top.top.subsurf.neighbor_start
-tb_top.top.subsurf.neighbor_busy
 tb_top.top.subsurf.subdiv_start
 tb_top.top.subsurf.subdiv_busy
+tb_top.top.subsurf.neighbor_start
+tb_top.top.subsurf.neighbor_busy
+tb_top.top.subsurf.averager_start
+tb_top.top.subsurf.averager_busy
 [pattern_trace] 1
 [pattern_trace] 0

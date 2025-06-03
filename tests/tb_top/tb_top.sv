@@ -4,8 +4,7 @@
 module tb_top;
 
 /* testing signals */
-logic clk;
-logic reset, busy;
+logic clk, reset;
 logic spi_start, spi_done, mosi, miso, sck, ss;
 logic [31:0] spi_data;
 
@@ -87,9 +86,9 @@ initial begin
     end
     /* wait for spi done to go high */
     while (~spi_done) #CLK_PERIOD
+    spi_start = 1'b0;
 
     /* wait for subsurf to finish */
-    while (busy) #CLK_PERIOD
     #1000000
 
     $writememh("output.hex", RAM);
