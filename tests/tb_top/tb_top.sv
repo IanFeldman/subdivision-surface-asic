@@ -15,6 +15,7 @@ localparam NUM_WORDS = 2**A_WIDTH;
 reg [31:0] RAM[(NUM_WORDS-1): 0];
 initial $readmemh("input.hex", RAM);
 integer i;
+logic [31:0] vertex_count, face_count, word_count;
 
 top top (
     .clk(clk),
@@ -55,6 +56,12 @@ initial begin
 end
 
 initial begin
+    /* determine word count */
+    vertex_count = RAM[0];
+    face_count = RAM[vertex_count * 3 + 1];
+    word_count = (vertex_count + face_count) * 3 + 2;
+
+    /* reset */
     clk = 1;
     reset = 1;
     #CLK_PERIOD
@@ -66,21 +73,25 @@ initial begin
     /* send object data */
     spi_data = RAM[0];
     i = 1;
-    while (i < 10) begin /* TODO: send very word in ram */
+    while (i <= word_count) begin
         #CLK_PERIOD
         if (spi_done == 1'b1) begin
             spi_data = RAM[i];
             i = i + 1;
+            #CLK_PERIOD; /* wait an extra clock for spi_done to go low */
         end
     end
     if (spi_done == 1'b1) begin
         spi_data = 32'hFFFFFFFF;
+        #CLK_PERIOD; /* wait an extra clock for spi_done to go low */
     end
-    #CLK_PERIOD
+    /* wait for spi done to go high */
+    while (~spi_done) #CLK_PERIOD
+
     /* wait for subsurf to finish */
     while (busy) #CLK_PERIOD
-    #CLK_PERIOD
-    #100000
+    #1000000
+
     $writememh("output.hex", RAM);
     $finish();
 end
