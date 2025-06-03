@@ -28,8 +28,7 @@ module DFFRAM512x32  (
         EN0,
         Di0,
         Do0,
-        A0,
-        write
+        A0
 );
        localparam A_WIDTH = 9;
        localparam NUM_WORDS = 2**A_WIDTH;
@@ -41,14 +40,12 @@ module DFFRAM512x32  (
        input   wire    [31:0]               Di0;
        output  reg     [31:0]               Do0;
        input   wire    [(A_WIDTH - 1): 0]   A0;
-       input   wire                         write;
        
        reg [31:0] RAM[(NUM_WORDS-1): 0];
 
        initial $readmemh("input.hex", RAM);
    
        always @(posedge CLK) begin
-           if (write == 1'b1) begin $writememh("output.hex", RAM); end
            if(EN0) begin
                Do0 <= RAM[A0];
                if(WE0[0]) RAM[A0][ 7: 0] <= Di0[7:0];
