@@ -1,0 +1,79 @@
+[*]
+[*] GTKWave Analyzer v3.4.0 (w)1999-2022 BSI
+[*] Tue Jun  3 19:55:24 2025
+[*]
+[dumpfile] "/home/asic/workspace/subdivision-surface-asic/tests/tb_subsurf/tb_subsurf.vcd"
+[dumpfile_mtime] "Tue Jun  3 19:51:29 2025"
+[dumpfile_size] 7994034
+[savefile] "/home/asic/workspace/subdivision-surface-asic/waveform.gtkw"
+[timestart] 100000
+[size] 1680 948
+[pos] -1 -1
+*-24.699999 26100000 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+[markername] AA
+[markername] BB
+[markername] CC
+[markername] DD
+[markername] EE
+[markername] FF
+[markername] GG
+[markername] HH
+[markername] II
+[markername] JJ
+[markername] KK
+[markername] LL
+[markername] MM
+[markername] NN
+[markername] OO
+[markername] PP
+[markername] QQ
+[markername] RR
+[markername] SS
+[markername] TT
+[markername] UU
+[markername] VV
+[markername] WW
+[markername] XX
+[markername] YY
+[markername] ZZ
+[treeopen] tb_subsurf.
+[treeopen] tb_subsurf.subsurf.
+[sst_width] 276
+[signals_width] 266
+[sst_expanded] 1
+[sst_vpaned_height] 367
+@200
+-TESTBENCH
+@28
+tb_subsurf.clk
+@22
+tb_subsurf.word_count[31:0]
+@29
+tb_subsurf.busy
+@200
+-
+-SUBDIVIDER
+@820
+tb_subsurf.subsurf.sbdv.state_string[63:0]
+@22
+tb_subsurf.subsurf.sbdv.curr_face[10:0]
+@28
+tb_subsurf.subsurf.sbdv.start
+@200
+-
+-NEIGHBOR
+@820
+tb_subsurf.subsurf.nbr.state_string[63:0]
+tb_subsurf.subsurf.nbr.in_state_string[63:0]
+tb_subsurf.subsurf.nbr.cv_state_string[63:0]
+@28
+tb_subsurf.subsurf.nbr.start
+@200
+-
+-AVERAGER
+@820
+tb_subsurf.subsurf.avgr.state_string[63:0]
+@28
+tb_subsurf.subsurf.avgr.start
+[pattern_trace] 1
+[pattern_trace] 0

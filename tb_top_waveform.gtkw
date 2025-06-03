@@ -1,0 +1,89 @@
+[*]
+[*] GTKWave Analyzer v3.4.0 (w)1999-2022 BSI
+[*] Tue Jun  3 21:04:43 2025
+[*]
+[dumpfile] "/home/asic/workspace/subdivision-surface-asic/tests/tb_top/tb_top.vcd"
+[dumpfile_mtime] "Tue Jun  3 21:04:00 2025"
+[dumpfile_size] 25453289
+[savefile] "/home/asic/workspace/subdivision-surface-asic/tb_top_waveform.gtkw"
+[timestart] 17900000
+[size] 1680 948
+[pos] -1 -1
+*-27.000000 406200000 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+[markername] AA
+[markername] BB
+[markername] CC
+[markername] DD
+[markername] EE
+[markername] FF
+[markername] GG
+[markername] HH
+[markername] II
+[markername] JJ
+[markername] KK
+[markername] LL
+[markername] MM
+[markername] NN
+[markername] OO
+[markername] PP
+[markername] QQ
+[markername] RR
+[markername] SS
+[markername] TT
+[markername] UU
+[markername] VV
+[markername] WW
+[markername] XX
+[markername] YY
+[markername] ZZ
+[treeopen] tb_top.
+[treeopen] tb_top.top.
+[treeopen] tb_top.top.subsurf.
+[sst_width] 276
+[signals_width] 231
+[sst_expanded] 1
+[sst_vpaned_height] 271
+@28
+tb_top.clk
+tb_top.reset
+@22
+tb_top.vertex_count[31:0]
+tb_top.face_count[31:0]
+tb_top.word_count[31:0]
+@200
+-
+-SPI
+@28
+tb_top.spi.rstb
+tb_top.sck
+tb_top.miso
+tb_top.mosi
+tb_top.ss
+tb_top.spi_done
+tb_top.spi_start
+@22
+tb_top.spi_data[31:0]
+@200
+-
+-TOP
+@22
+tb_top.top.word_count[31:0]
+@28
+tb_top.top.subsurf_start
+tb_top.top.busy
+@22
+tb_top.top.spi_data[31:0]
+@28
+tb_top.top.spi_done
+@200
+-
+-SUBSURF
+@28
+tb_top.top.subsurf.subdiv_start
+tb_top.top.subsurf.subdiv_busy
+tb_top.top.subsurf.neighbor_start
+tb_top.top.subsurf.neighbor_busy
+tb_top.top.subsurf.averager_start
+tb_top.top.subsurf.averager_busy
+[pattern_trace] 1
+[pattern_trace] 0

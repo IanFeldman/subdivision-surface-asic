@@ -10,12 +10,15 @@ module subsurf
     output logic [(`ADDR_WIDTH-1):0] a0, a1, a2,
     output logic [3:0] we0, we1, we2,
     output logic [31:0] di0, di1, di2,
-    output logic busy
+    output logic busy,
+    output logic [31:0] word_count
 );
 
 logic [31:0] vertex_count, face_count;
 logic subdiv_start, neighbor_start, averager_start;
 logic subdiv_busy, neighbor_busy, averager_busy;
+
+assign word_count = (vertex_count + face_count) * 3 + 2;
 
 /* subdiv RAM signals */
 logic en0_s, en1_s, en2_s;
