@@ -16,7 +16,7 @@
     "SYNTH_AUTONAME": true,
 
     "FP_SIZING": "absolute",
-    "DIE_AREA": [0, 0, 3000, 6700],
+    "DIE_AREA": [0, 0, 5000, 6700],
 
     "VERILOG_DEFINES": ["OPENLANE"],
 
@@ -24,8 +24,18 @@
     "GND_NETS": [ "VGND" ],
 
     "PDN_MACRO_CONNECTIONS": [
-        "ram0 VPWR VGND VPWR VGND",
-        "ram1 VPWR VGND VPWR VGND"
+        "ram0.ram0 VPWR VGND VPWR VGND",
+        "ram0.ram1 VPWR VGND VPWR VGND",
+        "ram0.ram2 VPWR VGND VPWR VGND",
+        "ram0.ram3 VPWR VGND VPWR VGND",
+        "ram1.ram0 VPWR VGND VPWR VGND",
+        "ram1.ram1 VPWR VGND VPWR VGND",
+        "ram1.ram2 VPWR VGND VPWR VGND",
+        "ram1.ram3 VPWR VGND VPWR VGND",
+        "ram2.ram0 VPWR VGND VPWR VGND",
+        "ram2.ram1 VPWR VGND VPWR VGND",
+        "ram2.ram2 VPWR VGND VPWR VGND",
+        "ram2.ram3 VPWR VGND VPWR VGND"
     ],
 
     "MACROS": {
@@ -56,27 +66,27 @@
                     "orientation": "N"
                 },
                 "ram1.ram2": {
-                    "location": [1500, 100],
+                    "location": [3000, 100],
                     "orientation": "FN"
                 },
                 "ram1.ram3": {
-                    "location": [1500, 1200],
+                    "location": [3000, 1200],
                     "orientation": "FN"
                 },
                 "ram2.ram0": {
-                    "location": [1500, 2300],
+                    "location": [3000, 2300],
                     "orientation": "FN"
                 },
                 "ram2.ram1": {
-                    "location": [1500, 3400],
+                    "location": [3000, 3400],
                     "orientation": "FN"
                 },
                 "ram2.ram2": {
-                    "location": [1500, 4500],
+                    "location": [3000, 4500],
                     "orientation": "FN"
                 },
                 "ram2.ram3": {
-                    "location": [1500, 5600],
+                    "location": [3000, 5600],
                     "orientation": "FN"
                 }
             },
