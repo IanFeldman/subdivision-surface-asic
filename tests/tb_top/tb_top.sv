@@ -5,21 +5,32 @@ module tb_top;
 
 logic clk;
 logic reset, busy;
-logic mosi, miso, sck_in, ss_in;
+logic spi_start, spi_done, mosi, miso, sck, ss;
+logic [31:0] spi_data;
 
 top top (
     .clk(clk),
     .reset(reset),
-    .sck_in(sck_in),
-    .ss_in(ss_in),
+    .sck_in(sck),
+    .ss_in(ss),
     .mosi(mosi),
     .miso(miso)
 );
 
-assign mosi = 1'b0;
-assign miso = 1'b0;
-assign sck_in = 1'b0;
-assign ss_in = 1'b1;
+spi_master spi (
+    .rstb(reset),
+    .clk(clk),
+    .mlb(1'b1),
+    .start(spi_start),
+    .tdat(spi_data),
+    .cdiv(2'b11),
+    .din(miso),
+    .ss(ss),
+    .sck(sck),
+    .dout(mosi),
+    .done(spi_done),
+    .rdata(spi_data)
+);
 
 // Sample to drive clock
 localparam CLK_PERIOD = 10;
@@ -38,9 +49,7 @@ end
 initial begin
     clk = 1;
     reset = 1;
-
-    #10;
-
+    #CLK_PERIOD
     reset = 0;
     while (busy) #CLK_PERIOD;
     #CLK_PERIOD;

@@ -44,7 +44,7 @@ quadram_sim ram2 (
     .wr(write2)
 );
 
-subsurf top (
+subsurf subsurf (
     .clk(clk),
     .start(start),
     .do0(do0),
