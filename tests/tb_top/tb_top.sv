@@ -4,13 +4,22 @@
 module tb_top;
 
 logic clk;
-logic start, busy;
+logic reset, busy;
+logic mosi, miso, sck_in, ss_in;
 
 top top (
     .clk(clk),
-    .start(start),
-    .busy(busy)
+    .reset(reset),
+    .sck_in(sck_in),
+    .ss_in(ss_in),
+    .mosi(mosi),
+    .miso(miso)
 );
+
+assign mosi = 1'b0;
+assign miso = 1'b0;
+assign sck_in = 1'b0;
+assign ss_in = 1'b1;
 
 // Sample to drive clock
 localparam CLK_PERIOD = 10;
@@ -28,7 +37,11 @@ end
 
 initial begin
     clk = 1;
-    start = 1;
+    reset = 1;
+
+    #10;
+
+    reset = 0;
     while (busy) #CLK_PERIOD;
     #CLK_PERIOD;
     $finish();

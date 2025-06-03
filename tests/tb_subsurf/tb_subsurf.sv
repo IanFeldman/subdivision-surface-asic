@@ -12,6 +12,7 @@ logic [(`ADDR_WIDTH - 1):0] a0, a1, a2;
 logic write0, write1, write2;
 
 logic start, busy;
+logic [31:0] word_count;
 
 quadram_sim ram0 (
     .clk(clk),
@@ -61,7 +62,8 @@ subsurf top (
     .di0(di0),
     .di1(di1),
     .di2(di2),
-    .busy(busy)
+    .busy(busy),
+    .word_count(word_count)
 );
 
 // Sample to drive clock
