@@ -1,15 +1,15 @@
 [*]
 [*] GTKWave Analyzer v3.4.0 (w)1999-2022 BSI
-[*] Tue Jun  3 22:16:47 2025
+[*] Wed Jun  4 00:38:18 2025
 [*]
 [dumpfile] "/home/asic/workspace/subdivision-surface-asic/tests/tb_top/tb_top.vcd"
-[dumpfile_mtime] "Tue Jun  3 07:55:10 2025"
-[dumpfile_size] 19550
+[dumpfile_mtime] "Wed Jun  4 00:38:13 2025"
+[dumpfile_size] 6183919
 [savefile] "/home/asic/workspace/subdivision-surface-asic/tests/tb_top/waveform.gtkw"
-[timestart] 0
+[timestart] 209562700
 [size] 1904 1039
-[pos] -958 -1
-*-27.000000 406200000 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+[pos] -1 -1
+*-15.000000 209660000 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
 [markername] AA
 [markername] BB
 [markername] CC
@@ -57,12 +57,10 @@ tb_top.mosi
 -TOP
 @22
 tb_top.top.word_count[31:0]
+tb_top.top.state[31:0]
 @28
 tb_top.top.subsurf_start
 tb_top.top.busy
-@22
-tb_top.top.spi_data[31:0]
-@28
 tb_top.top.spi_done
 @200
 -
@@ -74,5 +72,14 @@ tb_top.top.subsurf.neighbor_start
 tb_top.top.subsurf.neighbor_busy
 tb_top.top.subsurf.averager_start
 tb_top.top.subsurf.averager_busy
+@200
+-
+@22
+tb_top.top.ram0.addr_ram[8:0]
+tb_top.top.ram0.din[31:0]
+tb_top.top.obj_address[10:0]
+tb_top.top.obj_address[10:0]
+@28
+tb_top.top.reset
 [pattern_trace] 1
 [pattern_trace] 0

@@ -109,6 +109,9 @@ always_comb begin
 end
 
 always_ff @(negedge clk) begin
+    if (~start & ~busy) begin
+        state <= INIT;
+    end
     case (state)
         INIT: begin
             busy <= 0;

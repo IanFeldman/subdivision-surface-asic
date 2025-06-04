@@ -96,18 +96,3 @@ always @(negedge sck or negedge rstb)
   end //always
  
 endmodule
- 
-/*
-            if(mlb==0)  //LSB first, out=lsb -> right shift
-                    begin treg = {treg[7],treg[7:1]}; end
-            else     //MSB first, out=msb -> left shift
-                    begin treg = {treg[6:0],treg[0]}; end    
-*/
- 
- 
-/*
-force -freeze sim:/SPI_slave/sck 0 0, 1 {25 ns} -r 50 -can 410
-run 405ns
-noforce sim:/SPI_slave/sck
-force -freeze sim:/SPI_slave/sck 1 0
-*/

@@ -5,8 +5,8 @@ module tb_top;
 
 /* testing signals */
 logic clk, reset;
-logic spi_start, spi_done, spi_en, mosi, miso, sck, ss;
-logic [31:0] spi_data;
+logic spi_start, spi_done, mosi, miso, sck, ss;
+logic [31:0] spi_data_r, spi_data_t;
 
 /* data array - size of one quadram */
 localparam A_WIDTH = 11;
@@ -19,7 +19,7 @@ logic [31:0] vertex_count, face_count, word_count;
 top top (
     .clk(clk),
     .reset(reset),
-    .spi_en(spi_en),
+    .spi_en(1'b1),
     .sck_in(sck),
     .ss_in(ss),
     .mosi(mosi),
@@ -31,14 +31,14 @@ spi_master spi (
     .clk(clk),
     .mlb(1'b1),
     .start(spi_start),
-    .tdat(spi_data),
+    .tdat(spi_data_t),
     .cdiv(2'b00),
     .din(miso),
     .ss(ss),
     .sck(sck),
     .dout(mosi),
     .done(spi_done),
-    .rdata(spi_data)
+    .rdata(spi_data_r)
 );
 
 // Sample to drive clock
@@ -55,6 +55,7 @@ initial begin
     $dumpvars(2, tb_top);
 end
 
+
 initial begin
     /* determine word count */
     vertex_count = RAM[0];
@@ -64,35 +65,38 @@ initial begin
     /* reset */
     clk = 1;
     reset = 1;
-    spi_en = 0;
-    #CLK_PERIOD
-    reset = 0;
-    spi_en = 1;
+    #(CLK_PERIOD*2)
 
     /* start spi transaction */
-    spi_start = 1'b1;
-    #CLK_PERIOD
+    reset = 0;
+
     /* send object data */
-    spi_data = RAM[0];
-    i = 1;
+    spi_start = 1'b1;
+    spi_data_t = word_count;
+    i = 0;
     while (i <= word_count) begin
         #CLK_PERIOD
         if (spi_done == 1'b1) begin
-            spi_data = RAM[i];
+            spi_data_t = RAM[i];
             i = i + 1;
             #CLK_PERIOD; /* wait an extra clock for spi_done to go low */
         end
     end
-    if (spi_done == 1'b1) begin
-        spi_data = 32'hFFFFFFFF;
-        #CLK_PERIOD; /* wait an extra clock for spi_done to go low */
-    end
-    /* wait for spi done to go high */
-    while (~spi_done) #CLK_PERIOD
-    spi_start = 1'b0;
 
-    /* wait for subsurf to finish */
-    #1000000
+    #(CLK_PERIOD*1000); /* sorry, nop sled */
+
+    while (spi_data_r == 32'hFFFFFFFF) #CLK_PERIOD;
+
+    word_count = spi_data_r;
+
+    #CLK_PERIOD;
+
+    for (i = 0; i < word_count; i++) begin
+        @(posedge spi_done)
+        RAM[i] = spi_data_r;
+    end
+    
+    #5000;
 
     $writememh("output.hex", RAM);
     $finish();
