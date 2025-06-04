@@ -9,21 +9,29 @@ def q2f(n):
         value -= 2**num_bits
     return value
 
+# no comments (for icarus verilog dumps)
+def readline_nc(file):
+    while True:
+        line = file.readline()
+        if line[0:2] != "//":
+            break
+    return line
+
 def convert(filename, outfile):
     with open(filename, "r") as f:
         with open(outfile, "w") as of:
-            verts = int(f.readline()[:-1], 16)
+            verts = int(readline_nc(f)[:-1], 16)
             for _ in range(verts):
                 of.write("v")
                 for _ in range(3):
-                    of.write(" " + str(q2f(f.readline()[:-1])))
+                    of.write(" " + str(q2f(readline_nc(f)[:-1])))
                 of.write("\n")
 
-            faces = int(f.readline()[:-1], 16)
+            faces = int(readline_nc(f)[:-1], 16)
             for _ in range(faces):
                 of.write("f")
                 for _ in range(3):
-                    of.write(" " + str(int(f.readline()[:-1], 16)))
+                    of.write(" " + str(int(readline_nc(f)[:-1], 16)))
                 of.write("\n")
 
 if len(sys.argv) != 3:
