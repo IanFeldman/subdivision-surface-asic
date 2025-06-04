@@ -3,7 +3,7 @@
 
 module top
 (
-    input clk, sck_in, reset, spi_en, ss_in, mosi,
+    input clk, sck_in, reset, ss_in, mosi,
     output logic miso
 );
 
@@ -58,7 +58,7 @@ quadram ram2 (
 
 spi_slave spi (
     .rstb(~reset),
-    .ten(spi_en),
+    .ten(1'b1),
     .ss(ss_in),
     .sck(sck_in),
     .sdin(mosi),
@@ -127,7 +127,7 @@ always_ff @(posedge clk) begin
             spi_done_buffer <= spi_done;
             if (spi_done == 1'b1 && spi_done_buffer == 1'b0) begin
                 obj_address <= obj_address + 1;
-                if (obj_address == -11'd2) begin
+                if (obj_address == -`ADDR_WIDTH'd2) begin
                     input_word_count <= spi_data_r;
                 end else begin
                     word_buffer_in <= spi_data_r;

@@ -19,7 +19,6 @@ logic [31:0] vertex_count, face_count, word_count;
 top top (
     .clk(clk),
     .reset(reset),
-    .spi_en(1'b1),
     .sck_in(sck),
     .ss_in(ss),
     .mosi(mosi),
