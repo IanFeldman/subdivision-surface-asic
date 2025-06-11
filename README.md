@@ -1,4 +1,4 @@
-# subdivision-surface-asic
+# Subdivision Surface ASIC
 
 Hardware implementation of the [loop subdivision surface algorithm](https://en.wikipedia.org/wiki/Loop_subdivision_surface). It operates on a closed, triangular input mesh and outputs a higher-polygon, smoothed, and modified resultant mesh.
 
@@ -42,7 +42,24 @@ The algorithm is performed by three sequential modules: Subdiv, Neighbor, and Av
 </div>
 
 ### Subdiv
-This module does the initial mesh subdivision.
+This module subdivides each triangle of the input mesh into 4 separate triangles. In order to pair triangles that share an edge, an edge to new vertex map is maintained in RAM 2.
+```
+# Define E as midpoint(AB)
+#        F as midpoint(BC)
+#        D as midpoint(CA)
+
+Initialize map M = empty
+
+For each face ABC in F:
+    For edge e in {AB, BC, CA}:
+        If e not in M:
+            m = midpoint(e)
+            M(e) = m
+        Else:
+            m = M(e)
+        Write m to output mesh vertices
+    Write AED, EBF, DFC, EDF to output mesh faces
+```
 
 ### Neighbor
 Neighbor creates an adjacency list of all of the mesh vertices and stores it in RAM. Averager requries this list in order to perform a weighted average of each vertex and its neighbors. The list is formatted as an array where each vertex is allotted 1 index for its neighbor count and 9 indices for its neighbors. The algorithm for assembling the list is as follows:
@@ -94,6 +111,37 @@ For each vert, V, in neighbor structure:
 β can vary between implementations of the loop algorithm. It changes how much each vertex's position is influenced by its neighbors. Here, its value is 1/8.
 
 ## Testing
+To run the test bench, first generate a valid OBJ hex file and place it in the testbench directory as `input.hex`. Object files cannot be too large; complexity of models should be similar to those seen in the Gallery below.
+
+```
+./tools/obj2hex.py tools/bird.obj tests/tb_top/input.hex
+```
+The above command refers to the `tb_top` test bench, which is an end-to-end testbench that uses an SPI master module to simulate sending/receiving the object data from the accerlator. The `tb_subsurf` testbench initializes memory modules with the object file and only tests the `subsurf` module without any I/O.
+
+Run the testbench:
+```sh
+# Use Verilator
+make tests
+# Use Icarus Verilog
+make itests
+
+# View waveforms in gtkwave
+gtkwave tests/tb_top/waveform.gtkw
+gtkwave tests/tb_subsurf/waveform.gtkw
+```
+
+Then, convert `output.hex` into an OBJ file and import into something like Blender to see results!
+```
+./tools/hex2obj.py tests/tb_top/output.hex output.obj
+```
+
+## Running the Flow
+To generate the GDSII, run:
+```
+make openlane
+```
+
+In its current state, the design is very large at 5000 by 6700 μm. This is due to the use of 12 `DFFRAM512x32` memory macros. Beware that the static timing analysis uses up to 50 GB of memory at a time. There are also persistent LVS errors, preventing full generation of the design.
 
 ## Gallery
 <table>
