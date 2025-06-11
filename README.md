@@ -42,11 +42,67 @@ The algorithm is performed by three sequential modules: Subdiv, Neighbor, and Av
 </div>
 
 ### Subdiv
+This module does the initial mesh subdivision.
 
 ### Neighbor
+Neighbor creates an adjacency list of all of the mesh vertices and stores it in RAM. Averager requries this list in order to perform a weighted average of each vertex and its neighbors. The list is formatted as an array where each vertex is allotted 1 index for its neighbor count and 9 indices for its neighbors. The algorithm for assembling the list is as follows:
+```
+For each face F:
+    Read Va, Vb, Vc
+    For Va:
+        Read neighbor count from neighbor list
+        If Vb not in neighbor list:
+            Write Vb to neighbor list
+            Increment neighbor count
+        If Vc not in neighbor list:
+            Write Vc to neighbor list
+            Increment neighbor count
+    For Vb:
+        Read neighbor count from neighbor list
+        If Va not in neighbor list:
+            Write Va to neighbor list
+            Increment neighbor count
+        If Vc not in neighbor list:
+            Write Vc to neighbor list
+            Increment neighbor count
+    For Vc:
+        Read neighbor count from neighbor list
+        If Vb not in neighbor list:
+            Write Vb to neighbor list
+            Increment neighbor count
+        If Vc not in neighbor list:
+            Write Vc to neighbor list
+            Increment neighbor count
+```
+This is implemented in a finite state machine in RTL.
 
-### Average
+### Averager
+In this module, the final step of smoothing out all the vertices occurs. Using the adjacency matrix from Neighbor, Averager calculates a new set of X, Y, Z coordinates for each vertex and overwrites those values in RAM.
+```
+For each vert, V, in neighbor structure:
+    Init sumX, sumY, sumZ to 0
+    Read in neighbor count, C
+    For each neighbor, N, in neighbors:
+        sumX += NX / β
+        sumY += NY / β
+        sumZ += NZ / β
+    sumX += VX(1 - Cβ) 
+    sumY += VY(1 - Cβ) 
+    sumZ += VZ(1 - Cβ) 
+    Write sumX, sumY, sumZ to RAM
+```
+β can vary between implementations of the loop algorithm. It changes how much each vertex's position is influenced by its neighbors. Here, its value is 1/8.
 
 ## Testing
 
 ## Gallery
+<table>
+  <tr>
+    <td><img width="512" alt="Bird mesh input" src="https://github.com/user-attachments/assets/ea6552bf-ee37-4643-bfe0-06d1f7f0c1a0"/></td>
+    <td><img width="512" alt="Bird mesh output" src="https://github.com/user-attachments/assets/fd23d7bb-3e67-4297-a016-6a9c8e6484b8"/></td>
+  </tr>
+  <tr>
+    <td><img width="512" alt="Apple mesh input" src="https://github.com/user-attachments/assets/5408ea7a-cfbf-496f-8252-3047f0099aed"/></td>
+    <td><img width="512" alt="Apple mesh output" src="https://github.com/user-attachments/assets/7354084f-9443-4b9b-9c38-5d95fc12ef09"/></td>
+  </tr>
+</table>
